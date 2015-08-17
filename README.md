@@ -1,7 +1,7 @@
-xencenter-plugin-setuphimn
-==========================
+xencenter-himn-plugin
+=====================
 
-xencenter-plugin-setuphimn is a XenCenter Plugin to setup Host Internal Management Network (HIMN) on a guest VM. Please be noted that you DONOT need to install Visual Studio or run the make file from a Visual Sutdio Command Prompt.
+xencenter-himn-plugin is a XenCenter Plugin to setup Host Internal Management Network (HIMN) on a guest VM. Please be noted that you DONOT need to install Visual Studio or run the make file from a Visual Sutdio Command Prompt.
 
 Prerequisites
 -------------
@@ -12,12 +12,12 @@ Prerequisites
 Compile
 -------
 
-	xencenter-plugin-setuphimn\SetupHIMN\make.cmd
+	xencenter-himn-plugin\SetupHIMN\make.cmd
 
 Install
 -------
 
-	xencenter-plugin-setuphimn\SetupHIMN\output\SetupHIMN.msi
+	xencenter-himn-plugin\SetupHIMN\output\SetupHIMN.msi
 
 
 How to Use
