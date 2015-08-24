@@ -101,6 +101,7 @@ namespace SetupHIMN
             {
                 System.Console.WriteLine("vif: " + vifRef + " existed");
             }
+            VIF.plug(session, vifRef);
             System.Console.WriteLine();
         }
     }
