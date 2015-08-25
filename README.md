@@ -1,7 +1,7 @@
 xencenter-himn-plugin
 =====================
 
-xencenter-himn-plugin is a XenCenter Plugin to setup Host Internal Management Network (HIMN) on a guest VM. Please be noted that you need to run the make file from a Visual Sutdio Command Prompt.
+xencenter-himn-plugin is a XenCenter Plugin to add Host Internal Management Network (HIMN) to a guest VM. Please be noted that you need to run the make file from a Visual Sutdio Command Prompt.
 
 Prerequisites
 -------------
@@ -24,4 +24,4 @@ How to Use
 ----------
 
 + Restart XenCenter
-+ Right-click on the selected VMs, and click on "Setup HIMN"
++ Right-click on the selected VMs, and click on "Add management network" in the context menu.
