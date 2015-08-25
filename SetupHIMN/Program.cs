@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using XenAPI;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace SetupHIMN
 {
@@ -35,6 +36,21 @@ namespace SetupHIMN
                 }
             }
             return null;
+        }
+
+        static string getNextDevice(Session session)
+        {
+            List<XenRef<VIF>> vifRefs = VIF.get_all(session);
+            int device = 0;
+            foreach (XenRef<VIF> vifRef in vifRefs)
+            {
+                VIF vif = VIF.get_record(session, vifRef);
+                if (Regex.IsMatch(vif.device, @"^\d+$"))
+                {
+                    device = Math.Max(int.Parse(vif.device), device);
+                }
+            }
+            return device.ToString();
         }
 
         static string getVIF(Session session, string netRef, string vmRef, string device)
@@ -78,7 +94,7 @@ namespace SetupHIMN
             string sessionRef = args[1];
             string cls = args[2];
             string vm_uuid = args[3];
-            string device = "2";
+            
 
             if (cls != "VM")
             {
@@ -87,6 +103,8 @@ namespace SetupHIMN
             System.Console.WriteLine("connection url: " + url);
             Session session = new Session(url, sessionRef);
             System.Console.WriteLine("session: " + session.uuid);
+            string device = getNextDevice(session);
+            System.Console.WriteLine("device: " + device);
             string netRef = getNetwork(session, "xenapi");
             System.Console.WriteLine("net: " + netRef);
             string vmRef = getVM(session, vm_uuid);
