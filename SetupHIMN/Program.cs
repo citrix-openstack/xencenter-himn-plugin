@@ -38,21 +38,6 @@ namespace SetupHIMN
             return null;
         }
 
-        static string getNextDevice(Session session)
-        {
-            List<XenRef<VIF>> vifRefs = VIF.get_all(session);
-            int device = 0;
-            foreach (XenRef<VIF> vifRef in vifRefs)
-            {
-                VIF vif = VIF.get_record(session, vifRef);
-                if (Regex.IsMatch(vif.device, @"^\d+$"))
-                {
-                    device = Math.Max(int.Parse(vif.device), device);
-                }
-            }
-            return device.ToString();
-        }
-
         static string getVIF(Session session, string netRef, string vmRef, string device)
         {
             List<XenRef<VIF>> vifRefs = VIF.get_all(session);
@@ -67,6 +52,22 @@ namespace SetupHIMN
                 }
             }
             return null;
+        }
+
+        static string getNextDevice(Session session, string vmRef)
+        {
+            List<XenRef<VIF>> vifRefs = VIF.get_all(session);
+            int device = 0;
+            foreach (XenRef<VIF> vifRef in vifRefs)
+            {
+                VIF vif = VIF.get_record(session, vifRef);
+
+                if (Regex.IsMatch(vif.device, @"^\d+$") && vif.VM.opaque_ref == vmRef)
+                {
+                    device = Math.Max(int.Parse(vif.device), device);
+                }
+            }
+            return (device + 1).ToString();
         }
 
         static string createVIF(Session session, string netRef, string vmRef, string device)
@@ -94,7 +95,7 @@ namespace SetupHIMN
             string sessionRef = args[1];
             string cls = args[2];
             string vm_uuid = args[3];
-            
+
 
             if (cls != "VM")
             {
@@ -103,12 +104,12 @@ namespace SetupHIMN
             System.Console.WriteLine("connection url: " + url);
             Session session = new Session(url, sessionRef);
             System.Console.WriteLine("session: " + session.uuid);
-            string device = getNextDevice(session);
-            System.Console.WriteLine("device: " + device);
             string netRef = getNetwork(session, "xenapi");
             System.Console.WriteLine("net: " + netRef);
             string vmRef = getVM(session, vm_uuid);
             System.Console.WriteLine("vm: " + vmRef);
+            string device = getNextDevice(session, vmRef);
+            System.Console.WriteLine("device: " + device);
             string vifRef = getVIF(session, netRef, vmRef, device);
             if (vifRef == null)
             {
@@ -119,7 +120,14 @@ namespace SetupHIMN
             {
                 System.Console.WriteLine("vif: " + vifRef + " existed");
             }
-            VIF.plug(session, vifRef);
+            try
+            {
+                VIF.plug(session, vifRef);
+            }
+            catch (Exception)
+            {
+            }
+
             System.Console.WriteLine();
         }
     }
