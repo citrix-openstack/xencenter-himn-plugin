@@ -108,8 +108,9 @@ namespace SetupHIMN
             System.Console.WriteLine("net: " + netRef);
             string vmRef = getVM(session, vm_uuid);
             System.Console.WriteLine("vm: " + vmRef);
-            string device = getNextDevice(session, vmRef);
-            System.Console.WriteLine("device: " + device);
+            //string device = getNextDevice(session, vmRef);
+            //System.Console.WriteLine("device: " + device);
+            string device = "9";
             string vifRef = getVIF(session, netRef, vmRef, device);
             if (vifRef == null)
             {
