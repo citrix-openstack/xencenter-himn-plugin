@@ -16,8 +16,10 @@ namespace SetupHIMN
             foreach (XenRef<VM> vmRef in vmRefs)
             {
                 VM vm = VM.get_record(session, vmRef);
+
                 if (vm.uuid == vm_uuid)
                 {
+
                     return vmRef.opaque_ref;
                 }
             }
@@ -96,11 +98,11 @@ namespace SetupHIMN
             string cls = args[2];
             string vm_uuid = args[3];
 
-
             if (cls != "VM")
             {
                 return;
             }
+
             System.Console.WriteLine("connection url: " + url);
             Session session = new Session(url, sessionRef);
             System.Console.WriteLine("session: " + session.uuid);
@@ -108,6 +110,18 @@ namespace SetupHIMN
             System.Console.WriteLine("net: " + netRef);
             string vmRef = getVM(session, vm_uuid);
             System.Console.WriteLine("vm: " + vmRef);
+
+            VM vm = VM.get_record(session, vmRef);
+            if (vm.power_state != vm_power_state.Halted)
+            {
+                string s = "Management network need to be added when the VM ({0}) is powered off.\n" +
+                    "Please shut down VM ({0}) first then re-add management network.\n" +
+                    "Press Enter Key to continue.";
+                System.Console.WriteLine(string.Format(s, vm.name_label));
+                System.Console.ReadLine();
+                return;
+            }
+
             //string device = getNextDevice(session, vmRef);
             //System.Console.WriteLine("device: " + device);
             string device = "9";
@@ -121,15 +135,23 @@ namespace SetupHIMN
             {
                 System.Console.WriteLine("vif: " + vifRef + " existed");
             }
-            try
-            {
-                VIF.plug(session, vifRef);
-            }
-            catch (Exception)
-            {
-            }
+            //VIF.plug(session, vifRef);
 
-            System.Console.WriteLine();
+            VIF vif = VIF.get_record(session, vifRef);
+            System.Console.WriteLine("himn_mac: " + vif.MAC);
+
+            string himn_mac_key = "vm-data/himn_mac";
+            //VM.add_to_xenstore_data(session, vmRef, "himn_mac", vif.MAC);
+            Dictionary<string, string> xenstore_data = VM.get_xenstore_data(session, vmRef);
+            if (xenstore_data.ContainsKey(himn_mac_key))
+            {
+                xenstore_data[himn_mac_key] = vif.MAC;
+            }
+            else
+            {
+                xenstore_data.Add(himn_mac_key, vif.MAC);
+            }
+            VM.set_xenstore_data(session, vmRef, xenstore_data);
         }
     }
 }
