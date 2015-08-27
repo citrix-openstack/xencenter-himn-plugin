@@ -16,10 +16,8 @@ namespace SetupHIMN
             foreach (XenRef<VM> vmRef in vmRefs)
             {
                 VM vm = VM.get_record(session, vmRef);
-
                 if (vm.uuid == vm_uuid)
                 {
-
                     return vmRef.opaque_ref;
                 }
             }
@@ -141,7 +139,6 @@ namespace SetupHIMN
             System.Console.WriteLine("himn_mac: " + vif.MAC);
 
             string himn_mac_key = "vm-data/himn_mac";
-            //VM.add_to_xenstore_data(session, vmRef, "himn_mac", vif.MAC);
             Dictionary<string, string> xenstore_data = VM.get_xenstore_data(session, vmRef);
             if (xenstore_data.ContainsKey(himn_mac_key))
             {
