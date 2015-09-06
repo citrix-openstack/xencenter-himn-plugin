@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE XenCenterPlugin PUBLIC "-//XENCENTERPLUGIN//DTD XENCENTERPLUGIN1//EN" "xencenter-1.dtd">
-<XenCenterPlugin xmlns="http://www.citrix.com/XenCenter/Plugins/schema" version="1" plugin_version="1.0.0.0">
+<XenCenterPlugin xmlns="http://www.citrix.com/XenCenter/Plugins/schema" version="1" plugin_version="0.4.0">
   <MenuItem name="Add management network" menu="vm" contextmenu="vm" serialized="obj">
-    <PowerShell filename="Plugins\Citrix\SetupHIMN\SetupHIMN.ps1" window="true" debug="true" />
+    <Shell filename="Plugins\Citrix\SetupHIMN\SetupHIMN.exe" window="true" debug="true" />
   </MenuItem>
 </XenCenterPlugin>
