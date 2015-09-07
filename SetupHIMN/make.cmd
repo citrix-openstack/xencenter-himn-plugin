@@ -16,7 +16,7 @@ cp SetupHIMN* plugins\Citrix\SetupHIMN
 cp *.dll plugins\Citrix\SetupHIMN
 cp version.txt plugins\Citrix\SetupHIMN
 
-csc /out:plugins\Citrix\SetupHIMN\SetupHIMN.exe /reference:XenServer.dll Program.cs
+csc /target:winexe /out:plugins\Citrix\SetupHIMN\SetupHIMN.exe /reference:XenServer.dll Program.cs
 
 Echo creating installer
 powershell -ExecutionPolicy ByPass -File ..\PluginInstaller\Create-PluginInstaller.ps1 -out .\output\SetupHIMN-%ver%.msi -title "XenCenter Setup HIMN Plugin" -description "Setup Host Internal Management Network for Guest VM" -manufacturer "Citrix" -upgrade_code $([System.Guid]::NewGuid().ToString())
