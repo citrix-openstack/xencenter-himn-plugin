@@ -14,178 +14,10 @@ using System.Threading;
 
 namespace HIMN
 {
-    partial class HIMNForm
-    {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
-        {
-            this.dgv_vms = new System.Windows.Forms.DataGridView();
-            this.XenServer = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.VM = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.PowerState = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.pv_installed = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Log = new System.Windows.Forms.DataGridViewLinkColumn();
-            this.HIMN_Existed = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Remarks = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            ((System.ComponentModel.ISupportInitialize)(this.dgv_vms)).BeginInit();
-            this.SuspendLayout();
-            // 
-            // dgv_vms
-            // 
-            this.dgv_vms.AllowUserToAddRows = false;
-            this.dgv_vms.AllowUserToDeleteRows = false;
-            this.dgv_vms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgv_vms.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.XenServer,
-            this.VM,
-            this.PowerState,
-            this.pv_installed,
-            this.Log,
-            this.HIMN_Existed,
-            this.Remarks});
-            this.dgv_vms.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgv_vms.Location = new System.Drawing.Point(0, 0);
-            this.dgv_vms.Name = "dgv_vms";
-            this.dgv_vms.ReadOnly = true;
-            this.dgv_vms.Size = new System.Drawing.Size(984, 562);
-            this.dgv_vms.TabIndex = 0;
-            this.dgv_vms.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_vms_CellClick);
-            // 
-            // XenServer
-            // 
-            this.XenServer.HeaderText = "XenServer";
-            this.XenServer.Name = "XenServer";
-            this.XenServer.ReadOnly = true;
-            // 
-            // VM
-            // 
-            this.VM.HeaderText = "VM";
-            this.VM.Name = "VM";
-            this.VM.ReadOnly = true;
-            // 
-            // PowerState
-            // 
-            this.PowerState.HeaderText = "Power State";
-            this.PowerState.Name = "PowerState";
-            this.PowerState.ReadOnly = true;
-            // 
-            // pv_installed
-            // 
-            this.pv_installed.HeaderText = "PV";
-            this.pv_installed.Name = "pv_installed";
-            this.pv_installed.ReadOnly = true;
-            this.pv_installed.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.pv_installed.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.pv_installed.Width = 50;
-            // 
-            // Log
-            // 
-            this.Log.HeaderText = "Log";
-            this.Log.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.Log.Name = "Log";
-            this.Log.ReadOnly = true;
-            this.Log.Text = "Log";
-            // 
-            // HIMN_Existed
-            // 
-            this.HIMN_Existed.HeaderText = "Existed";
-            this.HIMN_Existed.Name = "HIMN_Existed";
-            this.HIMN_Existed.ReadOnly = true;
-            this.HIMN_Existed.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.HIMN_Existed.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.HIMN_Existed.Width = 50;
-            // 
-            // Remarks
-            // 
-            this.Remarks.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Remarks.HeaderText = "Remarks";
-            this.Remarks.Name = "Remarks";
-            this.Remarks.ReadOnly = true;
-            // 
-            // HIMNForm
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(984, 562);
-            this.Controls.Add(this.dgv_vms);
-            this.Name = "HIMNForm";
-            this.Text = "HIMN Tool";
-            this.Load += new System.EventHandler(this.HIMNForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.dgv_vms)).EndInit();
-            this.ResumeLayout(false);
-
-        }
-
-        #endregion
-
-        public System.Windows.Forms.DataGridView dgv_vms;
-        private System.Windows.Forms.DataGridViewTextBoxColumn XenServer;
-        private System.Windows.Forms.DataGridViewTextBoxColumn VM;
-        private System.Windows.Forms.DataGridViewTextBoxColumn PowerState;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn pv_installed;
-        private System.Windows.Forms.DataGridViewLinkColumn Log;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn HIMN_Existed;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Remarks;
-
-    }
-
-    public partial class HIMNForm : Form
-    {
-        public HIMNForm()
-        {
-            InitializeComponent();
-        }
-
-        private void HIMNForm_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void dgv_vms_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.ColumnIndex > 0)
-            {
-                DataGridViewCell cell = dgv_vms.Rows[e.RowIndex].Cells[e.ColumnIndex];
-
-                if (cell.GetType() == typeof(DataGridViewLinkCell))
-                {
-                    string path = (string)cell.Value;
-                    if (path != null)
-                    {
-                        Process.Start("notepad", path);
-                    }
-                }
-            }
-
-        }
-    }
-
     static class Program
     {
         const string LOG_ROOT = @"Logs";
+        const string APP_ICON = "AppIcon.ico";
 
         #region Business Code
         static string getVM(Session session, string vm_uuid)
@@ -256,7 +88,6 @@ namespace HIMN
             string logfile = DateTime.Now.ToString("yyyyMMddHHmmss") + "-" + vm_uuid;
             string logpath = Path.Combine(logroot, logfile + ".log");
             StreamWriter logger = new StreamWriter(logpath) { AutoFlush = true };
-            row.Cells[4].Value = logpath;
 
             //params
             logger.WriteLine(string.Format("url: {0}", url));
@@ -307,28 +138,27 @@ namespace HIMN
             else
             {
                 Dictionary<string, string> vm_guest_metrics =
-                    VM_guest_metrics.get_PV_drivers_version(session, vm.guest_metrics);
+                    VM_guest_metrics.get_PV_drivers_version(session, vm.guest_metrics.opaque_ref);
                 foreach (string k in vm_guest_metrics.Keys)
                 {
                     logger.WriteLine("vm_guest_metrics/{0}: {1}", k, vm_guest_metrics[k]);
                 }
-                pvInstalled = (vm_guest_metrics.Keys.Count == 0);
+                pvInstalled = (vm_guest_metrics.Keys.Count > 0);
             }
             row.Cells[3].Value = pvInstalled;
 
-            //himn existed
+            //himn exists
             string netRef = getNetwork(session, "xenapi");
             string vifRef = getVIF(session, netRef, vmRef);
             VIF vif;
-            bool himn_existed = !string.IsNullOrEmpty(vifRef);
-            row.Cells[5].Value = himn_existed;
-            if (himn_existed)
+            bool himn_exists = !string.IsNullOrEmpty(vifRef);
+            if (himn_exists)
             {
-                logger.WriteLine(string.Format("vif {0} existed", vifRef));
+                logger.WriteLine(string.Format("vif {0} exists", vifRef));
                 vif = VIF.get_record(session, vifRef);
-                row.Cells[6].Value = string.Format(
-                    "Management network already existed as VIF '{0}' {1}.",
-                    vif.device, vif.MAC);
+                row.Cells[4].Value = string.Format(
+                    "Already added as VIF '{0}' with MAC '{1}'. ",
+                    vif.device, vif.MAC.ToUpper());
 
             }
             else
@@ -336,23 +166,29 @@ namespace HIMN
                 //himn + power_state
                 if (vm.power_state != vm_power_state.Halted && !pvInstalled)
                 {
-                    row.Cells[6].Value = string.Format(
-                        "Management network need to be added when VM '{0}' is powered off. " +
-                        "Please shut down VM '{0}' first then redo.", vm.name_label);
-                    logger.WriteLine(string.Format("VM '{0}' need to be shutdown", vm.name_label));
+                    row.Cells[4].Value = string.Format(
+                        "PV tools missing. Requires shutdown to re-add.", vm.name_label);
+                    logger.WriteLine(string.Format("PV tools missing. Requires shutdown to re-add.",
+                        vm.name_label));
                     return;
                 }
 
-                row.Cells[6].Value = string.Format("Adding network 'xenapi' to VM '{0}'...", vm.name_label);
+                row.Cells[4].Value = string.Format("Adding internal management network...",
+                    vm.name_label);
 
                 string device = "9";
                 vifRef = createVIF(session, netRef, vmRef, device);
                 vif = VIF.get_record(session, vifRef);
                 logger.WriteLine(string.Format("vif {0} created", vifRef));
 
-                row.Cells[6].Value = string.Format("Management network added as VIF '{0}' {1}, " +
-                    "but not be visible in XenCenter.", vif.device, vif.MAC);
-                //VIF.plug(session, vifRef);
+                row.Cells[4].Value = string.Format("Added as VIF '{0}' with MAC '{1}'. ",
+                    vif.device, vif.MAC.ToUpper());
+                if (pvInstalled && vm.power_state == vm_power_state.Running)
+                {
+                    VIF.plug(session, vifRef);
+                    row.Cells[4].Value = string.Format("Added and plugged as VIF '{0}' with MAC '{1}'. " +
+                        "No reboot required.", vif.device, vif.MAC.ToUpper());
+                }
             }
 
             logger.WriteLine(string.Format("himn_mac: {0}", vif.MAC));
@@ -396,6 +232,12 @@ namespace HIMN
         static void Main(string[] args)
         {
             HIMNForm form = new HIMNForm();
+
+            if (File.Exists(APP_ICON))
+            {
+                form.Icon = new Icon(APP_ICON);
+            }
+
             Application.EnableVisualStyles();
             //Application.SetCompatibleTextRenderingDefault(false);
 
@@ -412,7 +254,7 @@ namespace HIMN
                 string sessionRef = args[i + 1];
                 string cls = args[i + 2];
                 string vm_uuid = args[i + 3];
-                int n = form.dgv_vms.Rows.Add("Connecting..", "Discovering..", "Unknown", false, "", false, "....", null);
+                int n = form.dgv_vms.Rows.Add("Connecting..", "Discovering..", "Unknown", false, "....");
                 DataGridViewRow row = form.dgv_vms.Rows[n];
                 Thread thread = new Thread(new ParameterizedThreadStart(AddHIMNStart));
                 thread.Start(new object[] { row, url, sessionRef, cls, vm_uuid });
