@@ -77,169 +77,254 @@ namespace HIMN
             return vifRef.opaque_ref;
         }
 
-        static void AddHIMN(DataGridViewRow row, string url, string sessionRef, string cls, string vm_uuid)
+        private static bool GetPVInstalled(Session session, VM vm)
         {
-            //log
-            string logroot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LOG_ROOT);
-            if (!Directory.Exists(logroot))
-            {
-                Directory.CreateDirectory(logroot);
-            }
-            string logfile = DateTime.Now.ToString("yyyyMMddHHmmss") + "-" + vm_uuid;
-            string logpath = Path.Combine(logroot, logfile + ".log");
-            StreamWriter logger = new StreamWriter(logpath) { AutoFlush = true };
-
-            //params
-            logger.WriteLine(string.Format("url: {0}", url));
-            logger.WriteLine(string.Format("sessionRef: {0}", sessionRef));
-            logger.WriteLine(string.Format("cls: {0}", cls));
-            logger.WriteLine(string.Format("vm_uuid: {0}", vm_uuid));
-
-            //validation
-            if (cls != "VM")
-            {
-                logger.WriteLine("cls type must be 'VM'");
-                return;
-            }
-
-            //session
-            Session session = new Session(url, sessionRef);
-            logger.WriteLine("session created");
-
-            //host
-            Host host = Host.get_record(session, session.get_this_host());
-            row.Cells[0].Value = host.name_label;
-
-            //vm
-            string vmRef = getVM(session, vm_uuid);
-            if (string.IsNullOrEmpty(vmRef))
-            {
-                logger.WriteLine("vm not founded");
-                return;
-            }
-            else
-            {
-                logger.WriteLine("vm founded");
-            }
-            VM vm = VM.get_record(session, vmRef);
-            logger.WriteLine("vm.name_label:" + vm.name_label);
-            row.Cells[1].Value = vm.name_label;
-
-            //power_state
-            logger.WriteLine("vm.power_state:" + vm.power_state);
-            row.Cells[2].Value = vm.power_state.ToString();
-
-            //pv installed
-            bool pvInstalled = false;
-            if (vm.guest_metrics.opaque_ref == "OpaqueRef:NULL")
-            {
-                pvInstalled = false;
-            }
-            else
+            if (vm.guest_metrics.opaque_ref != "OpaqueRef:NULL")
             {
                 Dictionary<string, string> vm_guest_metrics =
                     VM_guest_metrics.get_PV_drivers_version(session, vm.guest_metrics.opaque_ref);
-                foreach (string k in vm_guest_metrics.Keys)
-                {
-                    logger.WriteLine("vm_guest_metrics/{0}: {1}", k, vm_guest_metrics[k]);
-                }
-                pvInstalled = (vm_guest_metrics.Keys.Count > 0);
-            }
-            row.Cells[3].Value = pvInstalled;
-
-            //himn exists
-            string netRef = getNetwork(session, "xenapi");
-            string vifRef = getVIF(session, netRef, vmRef);
-            VIF vif;
-            bool himn_exists = !string.IsNullOrEmpty(vifRef);
-            if (himn_exists)
-            {
-                logger.WriteLine(string.Format("vif {0} exists", vifRef));
-                vif = VIF.get_record(session, vifRef);
-                row.Cells[4].Value = string.Format(
-                    "Already added as VIF '{0}' with MAC '{1}'. ",
-                    vif.device, vif.MAC.ToUpper());
-
-            }
-            else
-            {
-                //himn + power_state
-                if (vm.power_state != vm_power_state.Halted && !pvInstalled)
-                {
-                    row.Cells[4].Value = string.Format(
-                        "PV tools missing. Requires shutdown to re-add.", vm.name_label);
-                    logger.WriteLine(string.Format("PV tools missing. Requires shutdown to re-add.",
-                        vm.name_label));
-                    return;
-                }
-
-                row.Cells[4].Value = string.Format("Adding internal management network...",
-                    vm.name_label);
-
-                string device = "9";
-                vifRef = createVIF(session, netRef, vmRef, device);
-                vif = VIF.get_record(session, vifRef);
-                logger.WriteLine(string.Format("vif {0} created", vifRef));
-
-                row.Cells[4].Value = string.Format("Added as VIF '{0}' with MAC '{1}'. ",
-                    vif.device, vif.MAC.ToUpper());
-                if (pvInstalled && vm.power_state == vm_power_state.Running)
-                {
-                    VIF.plug(session, vifRef);
-                    row.Cells[4].Value = string.Format("Added and plugged as VIF '{0}' with MAC '{1}'. " +
-                        "No reboot required.", vif.device, vif.MAC.ToUpper());
-                }
+                return (vm_guest_metrics.Keys.Count > 0);
             }
 
-            logger.WriteLine(string.Format("himn_mac: {0}", vif.MAC));
+            return false;
+        }
 
-            string himn_mac_key = "vm-data/himn_mac";
+        private static void WriteXenStore(Session session, string vmRef, string key, string value)
+        {
             Dictionary<string, string> xenstore_data = VM.get_xenstore_data(session, vmRef);
-            if (xenstore_data.ContainsKey(himn_mac_key))
+            if (xenstore_data.ContainsKey(key))
             {
-                logger.WriteLine(string.Format("{0}: {1} => {2}",
-                    himn_mac_key, xenstore_data[himn_mac_key], vif.MAC));
-                xenstore_data[himn_mac_key] = vif.MAC;
+                xenstore_data[key] = value;
 
             }
             else
             {
-                xenstore_data.Add(himn_mac_key, vif.MAC);
-                logger.WriteLine(string.Format("{0}: {1}", himn_mac_key, vif.MAC));
+                xenstore_data.Add(key, value);
             }
 
             VM.set_xenstore_data(session, vmRef, xenstore_data);
-            logger.WriteLine("xenstore written");
-
-            logger.Close();
         }
 
-        static void AddHIMNStart(object obj)
+        static void DetectStatus(object obj)
         {
-            object[] parameters = (object[])obj;
+            object[] args = (object[])obj;
 
-            DataGridViewRow row = (DataGridViewRow)parameters[0];
-            string url = (string)parameters[1];
-            string sessionRef = (string)parameters[2];
-            string cls = (string)parameters[3];
-            string vm_uuid = (string)parameters[4];
+            HIMNForm form = args[0] as HIMNForm;
+            int i = (int)args[1];
 
-            AddHIMN(row, url, sessionRef, cls, vm_uuid);
+            string url = form.urls[i];
+            string sessionRef = form.sessionRefs[i];
+            string vm_uuid = form.vm_uuids[i];
+            string logpath = form.logpaths[i];
+            DataGridViewRow row = form.dgv_vms.Rows[i];
+
+            using (StreamWriter logger = new StreamWriter(logpath) { AutoFlush = true })
+            {
+                logger.WriteLine("DetectStatus");
+
+                //params
+                logger.WriteLine(string.Format("url: {0}", url));
+                logger.WriteLine(string.Format("sessionRef: {0}", sessionRef));
+                logger.WriteLine(string.Format("vm_uuid: {0}", vm_uuid));
+
+                //session
+                Session session = new Session(url, sessionRef);
+                logger.WriteLine("session created");
+
+                //host
+                Host host = Host.get_record(session, session.get_this_host());
+                logger.WriteLine("host: " + host.name_label);
+                row.Cells[0].Value = host.name_label;
+
+                //vm
+                string vmRef = getVM(session, vm_uuid);
+                VM vm = VM.get_record(session, vmRef);
+                logger.WriteLine("vm:" + vm.name_label);
+                row.Cells[1].Value = vm.name_label;
+
+                //power_state
+                logger.WriteLine("power_state:" + vm.power_state);
+                row.Cells[2].Value = vm.power_state.ToString();
+
+                //pv installed
+                bool pvInstalled = GetPVInstalled(session, vm);
+                logger.WriteLine("pv_installed:" + pvInstalled);
+                if (vm.power_state == vm_power_state.Running)
+                {
+                    row.Cells[3].Value = pvInstalled ? "Installed" : "Not installed";
+                }
+                else
+                {
+                    row.Cells[3].Value = "Unknown";
+                }
+
+                //himn exists
+                string netRef = getNetwork(session, "xenapi");
+                string vifRef = getVIF(session, netRef, vmRef);
+                bool HIMNExists = !string.IsNullOrEmpty(vifRef);
+                logger.WriteLine("himn_exists:" + HIMNExists);
+
+                if (HIMNExists)
+                {
+                    VIF vif = VIF.get_record(session, vifRef);
+                    row.Cells[4].Value = string.Format(
+                        "Already added as VIF '{0}' with MAC '{1}'. ",
+                        vif.device, vif.MAC.ToUpper());
+                }
+                else
+                {
+                    bool RebootRequired = (vm.power_state != vm_power_state.Halted && !pvInstalled);
+                    row.Cells[4].Value = "Ready. " +
+                        (RebootRequired ? "Requires reboot." : "No reboot required.");
+
+                    row.Cells[5] = new DataGridViewCheckBoxCell();
+                    row.Cells[5].Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    row.Cells[5].Value = true;
+                    row.Cells[5].ReadOnly = false;
+                }
+
+                form.ReadyCounter += 1;
+                if (form.ReadyCounter >= form.dgv_vms.Rows.Count)
+                {
+                    form.btnAdd.Enabled = true;
+                    threads.Clear();
+                }
+            }
         }
+
+        static void AddHIMN(object obj)
+        {
+            object[] args = (object[])obj;
+
+            HIMNForm form = args[0] as HIMNForm;
+            int i = (int)args[1];
+
+            string url = form.urls[i];
+            string sessionRef = form.sessionRefs[i];
+            string vm_uuid = form.vm_uuids[i];
+            string logpath = form.logpaths[i];
+            DataGridViewRow row = form.dgv_vms.Rows[i];
+
+            using (StreamWriter logger = new StreamWriter(logpath, true))
+            {
+                row.Cells[4].Value = "Adding internal management network...";
+
+                DataGridViewCheckBoxCell checkbox = row.Cells[5] as DataGridViewCheckBoxCell;
+
+                logger.WriteLine("DetectStatus");
+
+                //params
+                logger.WriteLine(string.Format("url: {0}", url));
+                logger.WriteLine(string.Format("sessionRef: {0}", sessionRef));
+                logger.WriteLine(string.Format("vm_uuid: {0}", vm_uuid));
+
+                //session
+                Session session = new Session(url, sessionRef);
+                logger.WriteLine("session created");
+
+                //vm
+                string vmRef = getVM(session, vm_uuid);
+                VM vm = VM.get_record(session, vmRef);
+                logger.WriteLine("vm:" + vm.name_label);
+
+                bool pvInstalled = GetPVInstalled(session, vm);
+                bool RebootRequired = (vm.power_state != vm_power_state.Halted && !pvInstalled);
+
+                //shutdown
+                if (RebootRequired)
+                {
+                    row.Cells[4].Value = "Shuting down...";
+
+                    VM.shutdown(session, vmRef);
+                    row.Cells[2].Value = vm.power_state.ToString();
+                    row.Cells[4].Value = "Adding internal management network...";
+                }
+
+                //adding himn
+                string device = "9";
+                string netRef = getNetwork(session, "xenapi");
+                string vifRef = createVIF(session, netRef, vmRef, device);
+                VIF vif = VIF.get_record(session, vifRef);
+                logger.WriteLine(string.Format("vif {0} created", vifRef));
+                string MAC = vif.MAC.ToUpper();
+                logger.WriteLine(string.Format("himn_mac: {0}", MAC));
+
+                //autoplug
+                bool AutoPlug = pvInstalled && vm.power_state == vm_power_state.Running;
+                if (AutoPlug)
+                {
+                    VIF.plug(session, vifRef);
+                }
+
+                //start vm
+                if (RebootRequired)
+                {
+                    row.Cells[4].Value = "Starting VM...";
+                    VM.shutdown(session, vmRef);
+                    row.Cells[2].Value = vm.power_state.ToString();
+                }
+
+                //write to xenstore
+                row.Cells[4].Value = "Writing to xenstore...";
+                WriteXenStore(session, vmRef, "vm-data/himn_mac", MAC);
+                logger.WriteLine("xenstore written");
+
+                row.Cells[4].Value = string.Format("Added as VIF '{0}' with MAC '{1}'. ",
+                    vif.device, MAC);
+            }
+
+            row.Cells[5] = new DataGridViewTextBoxCell();
+            row.Cells[5].Value = "";
+            row.Cells[5].ReadOnly = true;
+            form.CheckedCounter -= 1;
+
+            if (form.CheckedCounter <= 0)
+            {
+                form.btnAdd.Enabled = true;
+                threads.Clear();
+            }
+        }
+
+        static void btnAdd_Click(object sender, EventArgs e)
+        {
+            Button button = sender as Button;
+
+            HIMNForm form = button.FindForm() as HIMNForm;
+            for (int i = 0; i < form.dgv_vms.Rows.Count; i++)
+            {
+                DataGridViewRow row = form.dgv_vms.Rows[i];
+                DataGridViewCheckBoxCell checkbox = row.Cells[5] as DataGridViewCheckBoxCell;
+                if (checkbox != null && (bool)checkbox.Value == true)
+                {
+                    form.CheckedCounter += 1;
+                    checkbox.ReadOnly = true;
+
+                    Thread thread = new Thread(new ParameterizedThreadStart(AddHIMN));
+                    thread.Start(new object[] { form, i });
+                    threads.Add(thread);
+                }
+            }
+
+            if (form.CheckedCounter > 0)
+            {
+                button.Enabled = false;
+            }
+        }
+
         #endregion
+
+        static List<Thread> threads = new List<Thread>();
 
         [STAThread]
         static void Main(string[] args)
         {
             HIMNForm form = new HIMNForm();
+            form.btnAdd.Click += btnAdd_Click;
 
             if (File.Exists(APP_ICON))
             {
                 form.Icon = new Icon(APP_ICON);
             }
-
-            Application.EnableVisualStyles();
-            //Application.SetCompatibleTextRenderingDefault(false);
 
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
             if (args.Length < 4 || args.Length % 4 != 0)
@@ -248,18 +333,57 @@ namespace HIMN
                 return;
             }
 
+            string logroot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LOG_ROOT);
+            if (!Directory.Exists(logroot))
+            {
+                Directory.CreateDirectory(logroot);
+            }
+
             for (int i = 0; i < args.Length; i += 4)
             {
                 string url = args[i];
                 string sessionRef = args[i + 1];
                 string cls = args[i + 2];
                 string vm_uuid = args[i + 3];
-                int n = form.dgv_vms.Rows.Add("Connecting..", "Discovering..", "Unknown", false, "....");
+
+                if (cls != "VM")
+                {
+                    continue;
+                }
+
+                string logfile = DateTime.Now.ToString("yyyyMMddHHmmss") + "-" + vm_uuid;
+                string logpath = Path.Combine(logroot, logfile + ".log");
+
+                form.urls.Add(url);
+                form.sessionRefs.Add(sessionRef);
+                form.vm_uuids.Add(vm_uuid);
+                form.logpaths.Add(logpath);
+
+                int n = form.dgv_vms.Rows.Add(
+                    "Connecting...", "Discovering...", "Unknown", "Unknown", "Detecting status...", "");
                 DataGridViewRow row = form.dgv_vms.Rows[n];
-                Thread thread = new Thread(new ParameterizedThreadStart(AddHIMNStart));
-                thread.Start(new object[] { row, url, sessionRef, cls, vm_uuid });
+
+                Thread thread = new Thread(new ParameterizedThreadStart(DetectStatus));
+                thread.Start(new object[] { form, n });
+                threads.Add(thread);
             }
+
+            Application.EnableVisualStyles();
+            //Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(form);
+
+            foreach (Thread thread in threads)
+            {
+                try
+                {
+                    thread.Abort();
+                }
+                catch (Exception)
+                {
+                }
+            }
         }
+
+
     }
 }
