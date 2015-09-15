@@ -229,6 +229,7 @@ namespace HIMN
 
                 bool pvInstalled = GetPVInstalled(session, vm);
                 bool RebootRequired = (vm.power_state != vm_power_state.Halted && !pvInstalled);
+                bool AutoPlug = pvInstalled && vm.power_state == vm_power_state.Running;
 
                 //shutdown
                 if (RebootRequired)
@@ -236,6 +237,11 @@ namespace HIMN
                     row.Cells[4].Value = "Shuting down...";
 
                     VM.shutdown(session, vmRef);
+                    while (vm.power_state != vm_power_state.Halted)
+                    {
+                        vm = VM.get_record(session, vmRef);
+                        Thread.Sleep(100);
+                    }
                     row.Cells[2].Value = vm.power_state.ToString();
                     row.Cells[4].Value = "Adding internal management network...";
                 }
@@ -249,19 +255,23 @@ namespace HIMN
                 string MAC = vif.MAC.ToUpper();
                 logger.WriteLine(string.Format("himn_mac: {0}", MAC));
 
-                //autoplug
-                bool AutoPlug = pvInstalled && vm.power_state == vm_power_state.Running;
-                if (AutoPlug)
-                {
-                    VIF.plug(session, vifRef);
-                }
-
                 //start vm
                 if (RebootRequired)
                 {
                     row.Cells[4].Value = "Starting VM...";
-                    VM.shutdown(session, vmRef);
+                    VM.start(session, vmRef, false, true);
+                    while (vm.power_state != vm_power_state.Running)
+                    {
+                        vm = VM.get_record(session, vmRef);
+                        Thread.Sleep(100);
+                    }
                     row.Cells[2].Value = vm.power_state.ToString();
+                }
+
+                //autoplug
+                if (AutoPlug)
+                {
+                    VIF.plug(session, vifRef);
                 }
 
                 //write to xenstore
