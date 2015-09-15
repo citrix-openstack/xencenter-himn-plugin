@@ -169,7 +169,7 @@ namespace HIMN
                     VIF vif = VIF.get_record(session, vifRef);
                     row.Cells[4].Value = string.Format(
                         "Already added as VIF '{0}' with MAC '{1}'. ",
-                        vif.device, vif.MAC.ToUpper());
+                        vif.device, vif.MAC);
                 }
                 else
                 {
@@ -252,7 +252,7 @@ namespace HIMN
                 string vifRef = createVIF(session, netRef, vmRef, device);
                 VIF vif = VIF.get_record(session, vifRef);
                 logger.WriteLine(string.Format("vif {0} created", vifRef));
-                string MAC = vif.MAC.ToUpper();
+                string MAC = vif.MAC;
                 logger.WriteLine(string.Format("himn_mac: {0}", MAC));
 
                 //start vm
