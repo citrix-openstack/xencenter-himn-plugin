@@ -6,7 +6,7 @@ xencenter-himn-plugin is a XenCenter Plugin to add Host Internal Management Netw
 Download and Install
 --------------------
 
-Download SetupHIMN-VERSION.msi from <http://ca.downloads.xensource.com/OpenStack/Mirantis/> and install it to XenCenter.
+Download SetupHIMN-VERSION.msi from <http://ca.downloads.xensource.com/OpenStack/Plugins/> and install it to XenCenter.
 
 
 Compile and Install
