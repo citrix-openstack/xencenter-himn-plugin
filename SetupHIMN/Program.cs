@@ -178,6 +178,10 @@ namespace HIMN
                         (RebootRequired ? "Requires reboot." : "No reboot required.");
 
                     row.Cells[5] = new DataGridViewCheckBoxCell();
+                    while (!row.Cells[5].Displayed)
+                    {
+                        Thread.Sleep(100);
+                    }
                     row.Cells[5].Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
                     row.Cells[5].Value = true;
                     row.Cells[5].ReadOnly = false;
@@ -284,7 +288,11 @@ namespace HIMN
             }
 
             row.Cells[5] = new DataGridViewTextBoxCell();
-            row.Cells[5].Value = "";
+            while (!row.Cells[5].Displayed)
+            {
+                Thread.Sleep(100);
+            }
+            //row.Cells[5].Value = "";
             row.Cells[5].ReadOnly = true;
             form.CheckedCounter -= 1;
 
