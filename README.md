@@ -1,29 +1,28 @@
 xencenter-himn-plugin
 =====================
 
-xencenter-himn-plugin is a XenCenter Plugin to add Host Internal Management Network (HIMN) to a guest VM. Please be noted that you need to run the make file from a Visual Sutdio Command Prompt.
+xencenter-himn-plugin is a XenCenter Plugin to add Host Internal Management Network (HIMN) to a guest VM.
 
-Prerequisites
--------------
+Download and Install
+--------------------
 
-+ PowerShell version 2.0
-+ WiX 3.7
+Download SetupHIMN-VERSION.msi from <http://ca.downloads.xensource.com/OpenStack/Mirantis/> and install it to XenCenter.
 
-Compile
--------
 
-	xencenter-himn-plugin\SetupHIMN\make.cmd
+Compile and Install
+-------------------
 
-Install
--------
+Make sure you have _PowerShell version 2.0_ and _WiX 3.7_ installed and run `xencenter-himn-plugin\SetupHIMN\make.cmd` from a Visual Sutdio Command Prompt. The msi file will be generated under `xencenter-himn-plugin\SetupHIMN\output\`
 
-	xencenter-himn-plugin\SetupHIMN\output\SetupHIMN-VERSION.msi
 
 How to Use
 ----------
 
 + Restart XenCenter
-+ Right-click on the selected VMs, and click on "Add management network" in the context menu.
++ Right-click on the selected VMs, and click on "Add management network" in the context menu. ![](blob/master/doc/images/xchimn00.png)
++ Wait for status detection for all selected VMs and click "Add management network" button. ![](blob/master/doc/images/xchimn10.png)
++ Management network then will be added and shown with generated MAC address. ![](blob/master/doc/images/xchimn20.png)
+
 
 Logs
 ----
