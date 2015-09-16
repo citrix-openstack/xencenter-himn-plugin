@@ -19,9 +19,9 @@ How to Use
 ----------
 
 + Restart XenCenter
-+ Right-click on the selected VMs, and click on "Add management network" in the context menu. ![](https://raw.githubusercontent.com/citrix-openstack/xencenter-himn-plugin/dev/doc/images/xchimn00.png)
-+ Wait for status detection for all selected VMs and click "Add management network" button. ![](https://raw.githubusercontent.com/citrix-openstack/xencenter-himn-plugin/dev/doc/images/xchimn10.png)
-+ Management network then will be added and shown with generated MAC address. ![](https://raw.githubusercontent.com/citrix-openstack/xencenter-himn-plugin/dev/doc/images/xchimn20.png)
++ Right-click on the selected VMs, and click on "Add management network" in the context menu. ![](https://raw.githubusercontent.com/citrix-openstack/xencenter-himn-plugin/master/doc/images/xchimn00.png)
++ Wait for status detection for all selected VMs and click "Add management network" button. ![](https://raw.githubusercontent.com/citrix-openstack/xencenter-himn-plugin/master/doc/images/xchimn10.png)
++ Management network then will be added and shown with generated MAC address. ![](https://raw.githubusercontent.com/citrix-openstack/xencenter-himn-plugin/master/doc/images/xchimn20.png)
 
 
 Logs
