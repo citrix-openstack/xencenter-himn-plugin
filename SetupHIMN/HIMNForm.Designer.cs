@@ -29,14 +29,15 @@
         private void InitializeComponent()
         {
             this.dgv_vms = new System.Windows.Forms.DataGridView();
+            this.btnClose = new System.Windows.Forms.Button();
+            this.btnAdd = new System.Windows.Forms.Button();
+            this.btnRemove = new System.Windows.Forms.Button();
             this.XenServer = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.VM = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.PowerState = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pv_installed = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Selected = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.btnClose = new System.Windows.Forms.Button();
-            this.btnAdd = new System.Windows.Forms.Button();
+            this.Selected = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_vms)).BeginInit();
             this.SuspendLayout();
             // 
@@ -60,6 +61,39 @@
             this.dgv_vms.RowHeadersVisible = false;
             this.dgv_vms.Size = new System.Drawing.Size(784, 228);
             this.dgv_vms.TabIndex = 0;
+            // 
+            // btnClose
+            // 
+            this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClose.Location = new System.Drawing.Point(702, 231);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Size = new System.Drawing.Size(80, 28);
+            this.btnClose.TabIndex = 1;
+            this.btnClose.Text = "Close";
+            this.btnClose.UseVisualStyleBackColor = true;
+            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            // 
+            // btnAdd
+            // 
+            this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAdd.Enabled = false;
+            this.btnAdd.Location = new System.Drawing.Point(616, 231);
+            this.btnAdd.Name = "btnAdd";
+            this.btnAdd.Size = new System.Drawing.Size(80, 28);
+            this.btnAdd.TabIndex = 2;
+            this.btnAdd.Text = "Add";
+            this.btnAdd.UseVisualStyleBackColor = true;
+            // 
+            // btnRemove
+            // 
+            this.btnRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRemove.Enabled = false;
+            this.btnRemove.Location = new System.Drawing.Point(530, 231);
+            this.btnRemove.Name = "btnRemove";
+            this.btnRemove.Size = new System.Drawing.Size(80, 28);
+            this.btnRemove.TabIndex = 3;
+            this.btnRemove.Text = "Remove";
+            this.btnRemove.UseVisualStyleBackColor = true;
             // 
             // XenServer
             // 
@@ -103,37 +137,14 @@
             // 
             this.Selected.HeaderText = "";
             this.Selected.Name = "Selected";
-            this.Selected.ReadOnly = true;
-            this.Selected.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             this.Selected.Width = 30;
-            // 
-            // btnClose
-            // 
-            this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnClose.Location = new System.Drawing.Point(0, 231);
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(87, 28);
-            this.btnClose.TabIndex = 1;
-            this.btnClose.Text = "Close";
-            this.btnClose.UseVisualStyleBackColor = true;
-            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
-            // 
-            // btnAdd
-            // 
-            this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAdd.Enabled = false;
-            this.btnAdd.Location = new System.Drawing.Point(660, 231);
-            this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(124, 28);
-            this.btnAdd.TabIndex = 2;
-            this.btnAdd.Text = "Add Internal Network";
-            this.btnAdd.UseVisualStyleBackColor = true;
             // 
             // HIMNForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 262);
+            this.Controls.Add(this.btnRemove);
             this.Controls.Add(this.btnAdd);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.dgv_vms);
@@ -149,12 +160,13 @@
         public System.Windows.Forms.DataGridView dgv_vms;
         private System.Windows.Forms.Button btnClose;
         public System.Windows.Forms.Button btnAdd;
+        public System.Windows.Forms.Button btnRemove;
         private System.Windows.Forms.DataGridViewTextBoxColumn XenServer;
         private System.Windows.Forms.DataGridViewTextBoxColumn VM;
         private System.Windows.Forms.DataGridViewTextBoxColumn PowerState;
         private System.Windows.Forms.DataGridViewTextBoxColumn pv_installed;
         private System.Windows.Forms.DataGridViewTextBoxColumn Status;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Selected;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn Selected;
 
     }
 }
