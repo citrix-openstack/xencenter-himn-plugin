@@ -336,70 +336,90 @@ namespace HIMN
         [STAThread]
         static void Main(string[] args)
         {
-            HIMNForm form = new HIMNForm();
-            form.btnAdd.Click += btnAdd_Click;
-
-            if (File.Exists(APP_ICON))
+            try
             {
-                form.Icon = new Icon(APP_ICON);
-            }
-
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            if (args.Length < 4 || args.Length % 4 != 0)
-            {
-                MessageBox.Show(string.Format("Invalid paramenter length: {0}", args.Length));
-                return;
-            }
-
-            string logroot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LOG_ROOT);
-            if (!Directory.Exists(logroot))
-            {
-                Directory.CreateDirectory(logroot);
-            }
-
-            for (int i = 0; i < args.Length; i += 4)
-            {
-                string url = args[i];
-                string sessionRef = args[i + 1];
-                string cls = args[i + 2];
-                string vm_uuid = args[i + 3];
-
-                if (cls != "VM")
+                HIMNForm form = new HIMNForm();
+                form.btnAdd.Click += btnAdd_Click;
+                form.btnRemove.Click += btnRemove_Click;
+                if (File.Exists(APP_ICON))
                 {
-                    continue;
+                    form.Icon = new Icon(APP_ICON);
                 }
 
-                string logfile = DateTime.Now.ToString("yyyyMMddHHmmss") + "-" + vm_uuid;
-                string logpath = Path.Combine(logroot, logfile + ".log");
+                ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+                if (args.Length < 4 || args.Length % 4 != 0)
+                {
+                    MessageBox.Show(string.Format("Invalid paramenter length: {0}", args.Length));
+                    return;
+                }
 
-                form.urls.Add(url);
-                form.sessionRefs.Add(sessionRef);
-                form.vm_uuids.Add(vm_uuid);
-                form.logpaths.Add(logpath);
+                string logroot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LOG_ROOT);
+                if (!Directory.Exists(logroot))
+                {
+                    Directory.CreateDirectory(logroot);
+                }
 
-                int n = form.dgv_vms.Rows.Add(
-                    "Connecting...", "Discovering...", "Unknown", "Unknown", "Detecting status...", "");
-                DataGridViewRow row = form.dgv_vms.Rows[n];
+                for (int i = 0; i < args.Length; i += 4)
+                {
+                    string url = args[i];
+                    string sessionRef = args[i + 1];
+                    string cls = args[i + 2];
+                    string vm_uuid = args[i + 3];
 
-                Thread thread = new Thread(new ParameterizedThreadStart(DetectStatus));
-                thread.Start(new object[] { form, n });
-                threads.Add(thread);
+                    if (cls != "VM")
+                    {
+                        continue;
+                    }
+
+                    string logfile = DateTime.Now.ToString("yyyyMMddHHmmss") + "-" + vm_uuid;
+                    string logpath = Path.Combine(logroot, logfile + ".log");
+
+                    form.urls.Add(url);
+                    form.sessionRefs.Add(sessionRef);
+                    form.vm_uuids.Add(vm_uuid);
+                    form.logpaths.Add(logpath);
+
+                    int n = form.dgv_vms.Rows.Add(
+                        "Connecting...", "Discovering...", "Unknown", "Unknown", "Detecting status...", "");
+                    DataGridViewRow row = form.dgv_vms.Rows[n];
+
+                    Thread thread = new Thread(new ParameterizedThreadStart(DetectStatus));
+                    thread.Start(new object[] { form, n });
+                    threads.Add(thread);
+                }
+
+                Application.EnableVisualStyles();
+                //Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(form);
+
+                foreach (Thread thread in threads)
+                {
+                    try
+                    {
+                        thread.Abort();
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
             }
-
-            Application.EnableVisualStyles();
-            //Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(form);
-
-            foreach (Thread thread in threads)
+            catch (Exception ex)
             {
-                try
+                string logroot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LOG_ROOT);
+                if (!Directory.Exists(logroot))
                 {
-                    thread.Abort();
+                    Directory.CreateDirectory(logroot);
                 }
-                catch (Exception)
+                string errorlog = Path.Combine(logroot, "error.log");
+                using (StreamWriter writer = new StreamWriter(errorlog, true))
                 {
+                    writer.WriteLine("----------------------");
+                    writer.WriteLine(DateTime.Now.ToString());
+                    writer.WriteLine();
+                    writer.WriteLine(ex.ToString());
                 }
             }
+
         }
 
 
