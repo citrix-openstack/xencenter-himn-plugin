@@ -305,7 +305,7 @@ function main {
     $location = (get-folder-location);
     $doc = [System.Xml.XmlDocument](load-template);
     add-icon $doc ($doc.SelectSingleNode($product_element_xpath));
-    add-ui-ref $doc ($doc.SelectSingleNode($product_element_xpath));
+    # add-ui-ref $doc ($doc.SelectSingleNode($product_element_xpath));
     add-folder $doc $null $location 0;
     add-features $doc ($doc.SelectSingleNode($product_element_xpath)) @{"$title" = $features} 0
     save-template $doc $wxs_file;
