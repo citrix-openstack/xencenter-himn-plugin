@@ -28,11 +28,11 @@ param(
   #$lib = "$wix\\WixUI.wixlib",
   $ui_ref = "WixUI_Mondo",
   $title = "UserPlugins",
-  $manufacturer = "xenserver.org",
+  $manufacturer = "Citrix",
   $description = "XenCenter Plugins",
   $product_version = "1.0.0.0",
   $upgrade_code = "8282b90a-cb51-4c02-a1c1-ecfcff9861bf",
-  $product_code = ([System.Guid]::NewGuid().ToString()),
+  $product_code = "8282b90a-cb51-4c02-a1c1-ecfcff9861bf",
   $version_short = "1.0",
   $icon,
   [switch]$debug,
@@ -41,15 +41,15 @@ param(
 
 if($help) {
   write-host @"
-  
+
   PluginInstaller Creator:
-  
+
   Create-PluginInstaller [-plugins] <top folder path> [-out] <name of output msi> [-wix <location of wix binaries>] [-loc <location of wix strings>] [-lib <wix ui description library>] [-ui_ref <Wix UI reference>] [-title <name of installation>] [-manufacturer <plugin manufacturer>] [-description <description of plugins>] [-product_version <plugin version>] [-upgrade_code <guid for upgrading>] [-product_code <guid of product>] [-version_short <two number version>] [-icon <path to add/remove programs icon>] [-debug] [-help]
 
 "@
   return;
 }
-  
+
 #$wix_template = "{0}\\InstallerTemplate.wxs" -f (get-location);
 
 $scriptFolder = Split-Path $MyInvocation.MyCommand.Path -Parent
@@ -78,31 +78,31 @@ $default_version_short = "<?version-short>";
 function main {
 
   function generate-wxs {
-  
+
     function get-folder-location {
       if($plugins -ne $null) { return new-object System.IO.DirectoryInfo $plugins; }
       $plugins = (read-host -prompt "Path of plugins folder");
       return new-object System.IO.DirectoryInfo $plugins;
     }
-    
+
     function get-msiname {
       if($out -ne $null) { return $out; }
       return (read-host -prompt "Output MSI name");
     }
-  
+
     function get-folders([string]$filepath) {
       $folder_paths = @();
       $folders = get-childitem $filepath;
-      if ($folders -ne $null ){ 
+      if ($folders -ne $null ){
 		foreach($folder in $folders) {
 			if($folder.attributes -contains "Directory") {
 				$folder_paths += $folder;
 			}
 		}
-	  }	
+	  }
       return $folder_paths;
     }
-    
+
     function get-files([string]$filepath) {
       $file_paths = @();
       $files = get-childitem $filepath;
@@ -113,12 +113,12 @@ function main {
       }
       return $file_paths;
     }
-    
+
     function prep-template {
       $contents = $template
-      
+
       if ( $upgrade_code -match "$" ) { $upgrade_code = Invoke-Expression ($upgrade_code) }
-      
+
       $contents = $contents.Replace($default_title_cab, $title.Replace(" ", "_"));
       $contents = $contents.Replace($default_title, $title);
       $contents = $contents.Replace($default_manufacturer, $manufacturer);
@@ -129,67 +129,67 @@ function main {
       $contents = $contents.Replace($default_version_short, $version_short);
       Set-Content $wxs_file $contents;
     }
-    
+
     function load-template {
       prep-template;
       $xml_doc = new-object System.Xml.XmlDocument
       $xml_doc.Load($wxs_file);
       return $xml_doc;
     }
-    
+
     function save-template([System.Xml.XmlDocument]$doc, [string]$wxs_path) {
       $doc.Save($wxs_path);
     }
-    
+
     function gen-id([System.Xml.XmlElement]$node, [string]$name) {
       $id = $name.Substring(0, [math]::Min($name.Length, 26) ).Replace("-", "_").Replace(" ", "_") + "_";
-      
+
       for($i=0; $i -le 10; $i++) {
         $id += ([char]$r.Next(97,122)).ToString();
       }
       $node.SetAttribute("Id", $id);
       return $id
     }
-    
+
     function gen-name([System.Xml.XmlElement]$node, [string]$name) {
       #if($name.length -gt 8) { $name = $name.Substring(0,8) }
       $node.SetAttribute("Name", $name.Replace(" ","_"));
     }
-    
+
     function gen-longname([System.Xml.XmlElement]$node, [string]$name) {
       if($name.length -le 8) { return }
       $node.SetAttribute("LongName", $name);
     }
-    
+
     function gen-diskid([System.Xml.XmlElement]$node) {
       $node.SetAttribute("DiskId", "1");
     }
-    
+
     function gen-source([System.Xml.XmlElement]$node, [string]$path) {
       $node.SetAttribute("Source", $path);
     }
-    
+
     function gen-vital([System.Xml.XmlElement]$node) {
       $node.SetAttribute("Vital", "yes");
     }
-    
+
     function add-icon([System.Xml.XmlDocument]$doc, [System.Xml.XmlNode]$parent_node) {
       if($icon -eq $null) {
         return;
       }
-      
+
       $icon_node = [System.Xml.XmlElement]$doc.CreateNode([System.Xml.XmlNodeType]::Element,"Icon",$wix_ns);
       $foo = gen-id $icon_node "icon";
       $icon_node.SetAttribute("SourceFile", $icon);
       $foo = $parent_node.AppendChild($icon_node);
     }
-    
+
     function add-ui-ref([System.Xml.XmlDocument]$doc, [System.Xml.XmlNode]$parent_node) {
       $ui_node = [System.Xml.XmlElement]$doc.CreateNode([System.Xml.XmlNodeType]::Element,"UIRef",$wix_ns);
       $ui_node.SetAttribute("Id", $ui_ref);
       $foo = $parent_node.AppendChild($ui_node);
     }
-    
+
     function add-file([System.Xml.XmlDocument]$doc, [System.Xml.XmlNode]$component_node, [System.IO.FileSystemInfo]$file) {
       $file_node = [System.Xml.XmlElement]$doc.CreateNode([System.Xml.XmlNodeType]::Element,"File",$wix_ns);
       $foo = gen-id $file_node $file.ToString();
@@ -200,11 +200,11 @@ function main {
       gen-vital $file_node;
       $foo = $component_node.AppendChild($file_node);
     }
-    
+
     function gen-guid([System.Xml.XmlElement]$node) {
       $node.SetAttribute("Guid", [System.Guid]::NewGuid().ToString());
     }
-    
+
     function remove-id([string]$id) {
       if($id.Contains("component_")) {
         return $id.Replace($id.Substring($id.length - 13, 11), "")
@@ -213,7 +213,7 @@ function main {
         return $id;
       }
     }
-    
+
     function add-folder([System.Xml.XmlDocument]$doc, [System.Xml.XmlNode]$parent_node, [System.IO.DirectoryInfo]$folder, [int] $depth) {
 
       if($folder -eq $null) {
@@ -228,8 +228,8 @@ function main {
         $plugin_name = $folder.ToString();
         $features[$org_name].Add($plugin_name,@{});
       }
-      
-      
+
+
       $folder_node = $null;
       if($parent_node -eq $null) {
         $folder_node = $doc.SelectSingleNode($plugins_element_xpath)
@@ -239,7 +239,7 @@ function main {
         $foo = gen-id $folder_node $folder.ToString();
         gen-name $folder_node $folder.ToString();
         #gen-longname $folder_node $folder.ToString();
-      }    
+      }
       $files = get-files $folder.fullname;
       $id = $null
       if(([System.Object[]]$files).length -gt 0) { # add a new component... we need to keep track of these per plugin
@@ -251,7 +251,7 @@ function main {
         }
         $foo = $folder_node.AppendChild($component_node)
       }
-      
+
       if($id -ne $null) {
         if($org_name -eq $null) {
           $features["<toplevel>"]["<toplevel>"].Add($id,@{});
@@ -268,11 +268,11 @@ function main {
 		  foreach($subfolder in $folders) {
 			add-folder $doc $folder_node $subfolder ($depth +1)
 		  }
-	  }      
+	  }
       if($parent_node -ne $null) { $foo = $parent_node.AppendChild($folder_node) }
     }
-    
-    function add-features([System.Xml.XmlDocument]$doc, [System.Xml.XmlNode]$parent_node, [System.Collections.Hashtable]$table, [int]$depth) { 
+
+    function add-features([System.Xml.XmlDocument]$doc, [System.Xml.XmlNode]$parent_node, [System.Collections.Hashtable]$table, [int]$depth) {
       if($table -eq @{}) { return }
       foreach($key in $table.Keys) {
         if($depth -gt 2) {
@@ -300,7 +300,7 @@ function main {
         }
       }
     }
-  
+
     $features = @{"<toplevel>" = @{"<toplevel>" = @{}}};
     $location = (get-folder-location);
     $doc = [System.Xml.XmlDocument](load-template);
@@ -310,7 +310,7 @@ function main {
     add-features $doc ($doc.SelectSingleNode($product_element_xpath)) @{"$title" = $features} 0
     save-template $doc $wxs_file;
   }
-  
+
   function build-msi {
     if(![System.IO.Directory]::Exists($wix)) {
       write-host ("Could not find default WiX binaries folder at '{0}'" -f $wix) -foregroundcolor Yellow;
@@ -318,14 +318,14 @@ function main {
       build-msi;
       return;
     }
-    
+
     $candle_exe = $candle_format -f $wix, $out.Replace(".msi", "")
     invoke-expression $candle_exe
-    
+
     $light_exe = $light_format -f $wix, $out.Replace(".msi", "")
     invoke-expression $light_exe
   }
-  
+
   generate-wxs;
   build-msi;
 }
