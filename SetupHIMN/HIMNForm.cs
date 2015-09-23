@@ -16,7 +16,6 @@ namespace HIMN
         public List<string> urls = new List<string>();
         public List<string> sessionRefs = new List<string>();
         public List<string> vm_uuids = new List<string>();
-        public List<string> logpaths = new List<string>();
         public List<bool> himn_states = new List<bool>();
 
         //url, sessionRef, cls, vm_uuid,
