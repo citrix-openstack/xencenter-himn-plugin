@@ -173,10 +173,9 @@ namespace HIMN
             }
             finally
             {
-                row.Cells[5].Value = false;
-                form.CheckedCounter -= 1;
+                form.CheckedCounter += 1;
 
-                if (form.CheckedCounter <= 0)
+                if (form.CheckedCounter >= form.dgv_vms.RowCount)
                 {
                     form.btnAdd.Enabled = true;
                     form.btnRemove.Enabled = true;
@@ -291,7 +290,6 @@ namespace HIMN
             }
             finally
             {
-                row.Cells[5].Value = false;
                 form.CheckedCounter -= 1;
 
                 if (form.CheckedCounter <= 0)
@@ -343,19 +341,23 @@ namespace HIMN
                     VM vm = VM.get_record(session, vmRef);
                     Log(vm_uuid, "vm:" + vm.name_label);
 
+                    bool RebootRequired = (vm.power_state != vm_power_state.Halted);
                     bool pvInstalled = GetPVInstalled(session, vm);
 
                     //shutdown
-                    row.Cells[4].Value = "Shuting down...";
-
-                    VM.shutdown(session, vmRef);
-                    while (vm.power_state != vm_power_state.Halted)
+                    if (RebootRequired)
                     {
-                        vm = VM.get_record(session, vmRef);
-                        Thread.Sleep(100);
+                        row.Cells[4].Value = "Shuting down...";
+
+                        VM.shutdown(session, vmRef);
+                        while (vm.power_state != vm_power_state.Halted)
+                        {
+                            vm = VM.get_record(session, vmRef);
+                            Thread.Sleep(100);
+                        }
+                        row.Cells[2].Value = vm.power_state.ToString();
+                        row.Cells[4].Value = "Removing internal management network...";
                     }
-                    row.Cells[2].Value = vm.power_state.ToString();
-                    row.Cells[4].Value = "Removing internal management network...";
 
                     //remove himn
                     XenRef<Network> _network = Network.get_by_name_label(session, HIMN_NAME_LABEL)[0];
@@ -369,14 +371,17 @@ namespace HIMN
                     Log(vm_uuid, string.Format("vif {0} destroyed", vif.device));
 
                     //start vm
-                    row.Cells[4].Value = "Starting VM...";
-                    VM.start(session, vmRef, false, true);
-                    while (vm.power_state != vm_power_state.Running)
+                    if (RebootRequired)
                     {
-                        vm = VM.get_record(session, vmRef);
-                        Thread.Sleep(100);
+                        row.Cells[4].Value = "Starting VM...";
+                        VM.start(session, vmRef, false, true);
+                        while (vm.power_state != vm_power_state.Running)
+                        {
+                            vm = VM.get_record(session, vmRef);
+                            Thread.Sleep(100);
+                        }
+                        row.Cells[2].Value = vm.power_state.ToString();
                     }
-                    row.Cells[2].Value = vm.power_state.ToString();
 
                     //write to xenstore
                     row.Cells[4].Value = "Removing from xenstore...";
@@ -394,9 +399,7 @@ namespace HIMN
             }
             finally
             {
-                row.Cells[5].Value = false;
                 form.CheckedCounter -= 1;
-
                 if (form.CheckedCounter <= 0)
                 {
                     form.btnAdd.Enabled = true;
