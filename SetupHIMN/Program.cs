@@ -11,55 +11,30 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
+using System.Security.Principal;
 
 namespace HIMN
 {
     static class Program
     {
-        const string LOG_ROOT = @"Logs";
+        const string LOG_ROOT = "XCHIMN";
         const string APP_ICON = "AppIcon.ico";
         const string HIMN_MAC = "vm-data/himn_mac";
+        const string HIMN_NAME_LABEL = "Host internal management network";
 
         #region Business Code
-        static string getVM(Session session, string vm_uuid)
+        static VIF getVIF(Session session, string netRef, VM vm)
         {
-            List<XenRef<VM>> vmRefs = VM.get_all(session);
-            foreach (XenRef<VM> vmRef in vmRefs)
-            {
-                VM vm = VM.get_record(session, vmRef);
-                if (vm.uuid == vm_uuid)
-                {
-                    return vmRef.opaque_ref;
-                }
-            }
-            return null;
-        }
+            List<XenRef<VIF>> vifRefs = Network.get_VIFs(session, netRef);
 
-        static string getNetwork(Session session, string bridge)
-        {
-            List<XenRef<Network>> netRefs = Network.get_all(session);
-            foreach (XenRef<Network> netRef in netRefs)
-            {
-                Network net = Network.get_record(session, netRef);
-                if (net.bridge == bridge)
-                {
-                    return netRef.opaque_ref;
-                }
-            }
-            return null;
-        }
-
-        static string getVIF(Session session, string netRef, string vmRef)
-        {
-            List<XenRef<VIF>> vifRefs = VIF.get_all(session);
             foreach (XenRef<VIF> vifRef in vifRefs)
             {
-                VIF vif = VIF.get_record(session, vifRef);
-
-                if (vif.network.opaque_ref == netRef &&
-                    vif.VM.opaque_ref == vmRef)
+                foreach (XenRef<VIF> vifRef2 in vm.VIFs)
                 {
-                    return vifRef.opaque_ref;
+                    if (vifRef.opaque_ref == vifRef2.opaque_ref)
+                    {
+                        return VIF.get_record(session, vifRef.opaque_ref);
+                    }
                 }
             }
             return null;
@@ -148,7 +123,8 @@ namespace HIMN
                 row.Cells[0].Value = host.name_label;
 
                 //vm
-                string vmRef = getVM(session, vm_uuid);
+                XenRef<VM> _vm = VM.get_by_uuid(session, vm_uuid);
+                string vmRef = _vm.opaque_ref;
                 VM vm = VM.get_record(session, vmRef);
                 logger.WriteLine("vm:" + vm.name_label);
                 row.Cells[1].Value = vm.name_label;
@@ -170,14 +146,15 @@ namespace HIMN
                 }
 
                 //himn exists
-                string netRef = getNetwork(session, "xenapi");
-                string vifRef = getVIF(session, netRef, vmRef);
-                bool HIMNExists = !string.IsNullOrEmpty(vifRef);
+                XenRef<Network> _network = Network.get_by_name_label(session, HIMN_NAME_LABEL)[0];
+                string netRef = _network.opaque_ref;
+                VIF vif = getVIF(session, netRef, vm);
+
+                bool HIMNExists = (vif != null);
                 logger.WriteLine("himn_exists:" + HIMNExists);
                 form.himn_states[i] = HIMNExists;
                 if (HIMNExists)
                 {
-                    VIF vif = VIF.get_record(session, vifRef);
                     row.Cells[4].Value = string.Format(
                         "Already added as VIF '{0}' with MAC '{1}'. ",
                         vif.device, vif.MAC);
@@ -238,7 +215,8 @@ namespace HIMN
                     logger.WriteLine("session created");
 
                     //vm
-                    string vmRef = getVM(session, vm_uuid);
+                    XenRef<VM> _vm = VM.get_by_uuid(session, vm_uuid);
+                    string vmRef = _vm.opaque_ref;
                     VM vm = VM.get_record(session, vmRef);
                     logger.WriteLine("vm:" + vm.name_label);
 
@@ -263,7 +241,8 @@ namespace HIMN
 
                     //adding himn
                     string device = "9";
-                    string netRef = getNetwork(session, "xenapi");
+                    XenRef<Network> _network = Network.get_by_name_label(session, HIMN_NAME_LABEL)[0];
+                    string netRef = _network.opaque_ref;
                     string vifRef = createVIF(session, netRef, vmRef, device);
                     VIF vif = VIF.get_record(session, vifRef);
                     logger.WriteLine(string.Format("vif {0} created", vifRef));
@@ -347,7 +326,8 @@ namespace HIMN
                     logger.WriteLine("session created");
 
                     //vm
-                    string vmRef = getVM(session, vm_uuid);
+                    XenRef<VM> _vm = VM.get_by_uuid(session, vm_uuid);
+                    string vmRef = _vm.opaque_ref;
                     VM vm = VM.get_record(session, vmRef);
                     logger.WriteLine("vm:" + vm.name_label);
 
@@ -371,10 +351,15 @@ namespace HIMN
                     }
 
                     //adding himn
-                    string netRef = getNetwork(session, "xenapi");
-                    string vifRef = getVIF(session, netRef, vmRef);
-                    VIF.destroy(session, vifRef);
-                    logger.WriteLine(string.Format("vif {0} destroyed", vifRef));
+                    XenRef<Network> _network = Network.get_by_name_label(session, HIMN_NAME_LABEL)[0];
+                    string netRef = _network.opaque_ref;
+                    VIF vif = getVIF(session, netRef, vm);
+                    XenRef<VIF> _vif = VIF.get_by_uuid(session, vif.uuid);
+                    if (_vif != null)
+                    {
+                        VIF.destroy(session, _vif.opaque_ref);
+                    }
+                    logger.WriteLine(string.Format("vif {0} destroyed", vif.device));
 
                     //start vm
                     if (RebootRequired)
@@ -467,6 +452,14 @@ namespace HIMN
         [STAThread]
         static void Main(string[] args)
         {
+
+            string log_root = Path.GetTempPath();// Path.Combine(Path.GetTempPath(), LOG_ROOT);
+            MessageBox.Show(WindowsIdentity.GetCurrent().Name + "\t" + log_root);
+            if (!Directory.Exists(log_root))
+            {
+                Directory.CreateDirectory(log_root);
+            }
+
             try
             {
                 HIMNForm form = new HIMNForm();
@@ -484,10 +477,9 @@ namespace HIMN
                     return;
                 }
 
-                string logroot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LOG_ROOT);
-                if (!Directory.Exists(logroot))
+                if (!Directory.Exists(log_root))
                 {
-                    Directory.CreateDirectory(logroot);
+                    Directory.CreateDirectory(log_root);
                 }
 
                 for (int i = 0; i < args.Length; i += 4)
@@ -503,7 +495,7 @@ namespace HIMN
                     }
 
                     string logfile = DateTime.Now.ToString("yyyyMMddHHmmss") + "-" + vm_uuid;
-                    string logpath = Path.Combine(logroot, logfile + ".log");
+                    string logpath = Path.Combine(log_root, logfile + ".log");
 
                     form.urls.Add(url);
                     form.sessionRefs.Add(sessionRef);
@@ -512,7 +504,7 @@ namespace HIMN
                     form.himn_states.Add(false);
 
                     int n = form.dgv_vms.Rows.Add(
-                        "Connecting...", "Discovering...", "Unknown", "Unknown", "Detecting status...", false);
+                        "Connecting...", "Discovering...", "Detecting...", "Detecting...", "Detecting status...", false);
                     DataGridViewRow row = form.dgv_vms.Rows[n];
 
                     Thread thread = new Thread(new ParameterizedThreadStart(DetectStatus));
@@ -537,12 +529,11 @@ namespace HIMN
             }
             catch (Exception ex)
             {
-                string logroot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, LOG_ROOT);
-                if (!Directory.Exists(logroot))
+                if (!Directory.Exists(log_root))
                 {
-                    Directory.CreateDirectory(logroot);
+                    Directory.CreateDirectory(log_root);
                 }
-                string errorlog = Path.Combine(logroot, "error.log");
+                string errorlog = Path.Combine(log_root, "error.log");
                 using (StreamWriter writer = new StreamWriter(errorlog, true))
                 {
                     writer.WriteLine("----------------------");
