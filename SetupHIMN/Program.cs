@@ -173,9 +173,8 @@ namespace HIMN
             }
             finally
             {
-                form.CheckedCounter += 1;
-
-                if (form.CheckedCounter >= form.dgv_vms.RowCount)
+                form.CheckedCounter -= 1;
+                if (form.CheckedCounter == 0)
                 {
                     form.btnAdd.Enabled = true;
                     form.btnRemove.Enabled = true;
@@ -281,6 +280,8 @@ namespace HIMN
                     row.Cells[4].Value = string.Format("Added as VIF '{0}' with MAC '{1}'. ",
                         vif.device, MAC);
                     form.himn_states[i] = true;
+
+                    row.Cells[5].Value = false;
                 }
             }
             catch (Exception ex)
@@ -291,8 +292,7 @@ namespace HIMN
             finally
             {
                 form.CheckedCounter -= 1;
-
-                if (form.CheckedCounter <= 0)
+                if (form.CheckedCounter == 0)
                 {
                     form.btnAdd.Enabled = true;
                     form.btnRemove.Enabled = true;
@@ -390,6 +390,7 @@ namespace HIMN
 
                     row.Cells[4].Value = "Removed";
                     form.himn_states[i] = false;
+                    row.Cells[5].Value = false;
                 }
             }
             catch (Exception ex)
@@ -400,7 +401,7 @@ namespace HIMN
             finally
             {
                 form.CheckedCounter -= 1;
-                if (form.CheckedCounter <= 0)
+                if (form.CheckedCounter == 0)
                 {
                     form.btnAdd.Enabled = true;
                     form.btnRemove.Enabled = true;
@@ -412,7 +413,6 @@ namespace HIMN
         static void btnAdd_Click(object sender, EventArgs e)
         {
             Button button = sender as Button;
-            button.Focus();
 
             HIMNForm form = button.FindForm() as HIMNForm;
             for (int i = 0; i < form.dgv_vms.Rows.Count; i++)
@@ -428,18 +428,18 @@ namespace HIMN
                     threads.Add(thread);
                 }
             }
-
             if (form.CheckedCounter > 0)
             {
                 form.btnAdd.Enabled = false;
                 form.btnRemove.Enabled = false;
             }
+
+            form.btnClose.Focus();
         }
 
         static void btnRemove_Click(object sender, EventArgs e)
         {
             Button button = sender as Button;
-            button.Focus();
 
             HIMNForm form = button.FindForm() as HIMNForm;
             for (int i = 0; i < form.dgv_vms.Rows.Count; i++)
@@ -455,12 +455,13 @@ namespace HIMN
                     threads.Add(thread);
                 }
             }
-
             if (form.CheckedCounter > 0)
             {
                 form.btnAdd.Enabled = false;
                 form.btnRemove.Enabled = false;
             }
+
+            form.btnClose.Focus();
         }
         #endregion
 
@@ -499,11 +500,6 @@ namespace HIMN
                 }
 
                 ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-                //if (args.Length < 4 || args.Length % 4 != 0)
-                //{
-                //    MessageBox.Show(string.Format("Invalid paramenter length: {0}", args.Length));
-                //    return;
-                //}
 
                 for (int i = 0; i < args.Length; i += 4)
                 {
@@ -521,7 +517,7 @@ namespace HIMN
                     form.sessionRefs.Add(sessionRef);
                     form.vm_uuids.Add(vm_uuid);
                     form.himn_states.Add(false);
-
+                    
                     int n = form.dgv_vms.Rows.Add(
                         "Connecting...", "Discovering...", "Detecting...", "Detecting...", "Detecting status...", false);
                     DataGridViewRow row = form.dgv_vms.Rows[n];
@@ -530,6 +526,7 @@ namespace HIMN
                     thread.Start(new object[] { form, n });
                     threads.Add(thread);
                 }
+                form.CheckedCounter = form.dgv_vms.RowCount;
 
                 Application.EnableVisualStyles();
                 //Application.SetCompatibleTextRenderingDefault(false);
