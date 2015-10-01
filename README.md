@@ -12,7 +12,7 @@ Download SetupHIMN-VERSION.msi from <http://ca.downloads.xensource.com/OpenStack
 Compile and Install
 -------------------
 
-Make sure you have _PowerShell version 2.0_ and _WiX 3.7_ installed and run `xencenter-himn-plugin\SetupHIMN\make.cmd` from a Visual Sutdio Command Prompt. The msi file will be generated under `xencenter-himn-plugin\SetupHIMN\output\`
+Make sure you have _PowerShell version 2.0_ and _WiX 3.7_ installed and run `make.cmd` from within `xencenter-himn-plugin\SetupHIMN\` from a Powershell Prompt. The msi file will be generated under `xencenter-himn-plugin\SetupHIMN\output\`.
 
 
 How to Use
