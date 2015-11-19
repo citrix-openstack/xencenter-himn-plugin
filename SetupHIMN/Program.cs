@@ -488,8 +488,7 @@ namespace HIMN
         {
             try
             {
-                logger = new StreamWriter(
-                    Path.Combine(Path.GetTempPath(), LOG_ROOT)) { AutoFlush = true };
+                logger = new StreamWriter(Path.Combine(Path.GetTempPath(), LOG_ROOT), true) { AutoFlush = true };
 
                 HIMNForm form = new HIMNForm();
                 form.btnAdd.Click += btnAdd_Click;
@@ -517,7 +516,7 @@ namespace HIMN
                     form.sessionRefs.Add(sessionRef);
                     form.vm_uuids.Add(vm_uuid);
                     form.himn_states.Add(false);
-                    
+
                     int n = form.dgv_vms.Rows.Add(
                         "Connecting...", "Discovering...", "Detecting...", "Detecting...", "Detecting status...", false);
                     DataGridViewRow row = form.dgv_vms.Rows[n];
