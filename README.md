@@ -12,7 +12,7 @@ Download SetupHIMN-VERSION.msi from <http://ca.downloads.xensource.com/OpenStack
 Compile and Install
 -------------------
 
-Make sure you have _PowerShell version 2.0_ and _WiX 3.7_ installed and run `make.cmd` from within `xencenter-himn-plugin\SetupHIMN\` from a Powershell Prompt. The msi file will be generated under `xencenter-himn-plugin\SetupHIMN\output\`.
+Make sure you have _Microsoft .Net Framework SDK 3.5+_, _PowerShell version 2.0+_ and _WiX 3.7_ installed and run `make.cmd`. The msi file will be generated under `xencenter-himn-plugin\SetupHIMN\output\`.
 
 
 How to Use
@@ -27,7 +27,7 @@ How to Use
 Logs
 ----
 
-All log files will be stored under `%programfiles(x86)%\Citrix\XenCenter\Plugins\Citrix\SetupHIMN\Logs` separately.
+All log files will be stored as `%AppData%/Local/Temp/XCHIMN.log`.
 
 Under the hood
 --------------

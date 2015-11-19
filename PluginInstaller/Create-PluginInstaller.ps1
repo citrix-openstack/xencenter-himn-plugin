@@ -23,7 +23,7 @@
 param(
   $plugins = ("{0}\\Plugins" -f (get-location)),
   $out = "SamplePlugin.msi",
-  $wix = "C:\\Program Files (x86)\\WiX Toolset v3.7\\bin",
+  $wix = "$env:WIX\\bin",
   #$loc = "$wix\\WixUI_en-us.wxl",
   #$lib = "$wix\\WixUI.wixlib",
   $ui_ref = "WixUI_Mondo",

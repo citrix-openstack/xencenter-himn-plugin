@@ -1,5 +1,8 @@
-echo PowerShell version 2.0 or higher is required to run this
+echo PowerShell version 2.0 or higher is required
+echo Microsoft .Net Framework SDK 3.5 or higher is required
 echo WiX 3.7 is assumed installed to compile the installer
+
+@set "PATH=%windir%\Microsoft.NET\Framework\v3.5;%PATH%"
 
 for /f "tokens=4 delims= " %%a in ('findstr /r /c:"plugin_version=\"[0-9][0-9]*.[0-9][0-9]*.[0-9][0-9]*\"" SetupHIMN.xcplugin.xml') do @set seg=%%a
 
@@ -12,9 +15,9 @@ mkdir plugins\Citrix\SetupHIMN
 mkdir output
 
 
-cp SetupHIMN* plugins\Citrix\SetupHIMN
-cp *.dll plugins\Citrix\SetupHIMN
-cp AppIcon.ico plugins\Citrix\SetupHIMN
+copy SetupHIMN* plugins\Citrix\SetupHIMN
+copy *.dll plugins\Citrix\SetupHIMN
+copy AppIcon.ico plugins\Citrix\SetupHIMN
 
 csc /target:winexe /out:plugins\Citrix\SetupHIMN\SetupHIMN.exe /reference:XenServer.dll Program.cs HIMNForm.cs HIMNForm.Designer.cs
 
