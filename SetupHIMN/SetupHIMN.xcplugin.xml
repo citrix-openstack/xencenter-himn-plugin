@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE XenCenterPlugin PUBLIC "-//XENCENTERPLUGIN//DTD XENCENTERPLUGIN1//EN" "xencenter-1.dtd">
-<XenCenterPlugin xmlns="http://www.citrix.com/XenCenter/Plugins/schema" version="1" plugin_version="1.0.2">
+<XenCenterPlugin xmlns="http://www.citrix.com/XenCenter/Plugins/schema" version="1" plugin_version="1.0.3">
   <MenuItem name="Manage internal management network" menu="vm" contextmenu="vm" serialized="obj">
     <Shell filename="Plugins\Citrix\SetupHIMN\SetupHIMN.exe" window="true" debug="false" />
   </MenuItem>
