@@ -19,13 +19,16 @@
             <Directory Id="DesktopFolder" />
         </Directory>
 
-  <UI Id="WixUI_Minimal">
+  <UI Id="WixUI_Mondo">
+    <!--
     <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
     <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
     <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
 
     <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+
     <Property Id="WixUI_Mode" Value="Minimal" />
+    -->
 
     <DialogRef Id="ErrorDlg" />
     <DialogRef Id="FatalError" />
@@ -35,11 +38,16 @@
     <DialogRef Id="ProgressDlg" />
     <DialogRef Id="ResumeDlg" />
     <DialogRef Id="UserExit" />
+    <DialogRef Id="InstallDirDlg" />
 
     <!-- This is the welcome dialog you specified-->
     <DialogRef Id="WelcomeDlg" />
 
+    <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg"  Order="2">1</Publish>
+    <!-- skip the page on the way back too -->
+    <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg"  Order="2">1</Publish>
     <!-- Hook the new welcome dialog to the next one in the stack-->
+    <!--
     <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="PrepareDlg">1</Publish>
 
     <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
@@ -53,6 +61,7 @@
     <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
 
     <Property Id="ARPNOMODIFY" Value="1" />
+    -->
   </UI>
 
   <UIRef Id="WixUI_Common" />
@@ -64,6 +73,7 @@
             <RegistrySearch Id="XenCenterRegistryCU" Type="raw" Root="HKCU" Key="Software\Citrix\XenCenter" Name="InstallDir" />
         </Property>
         <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+        <UIRef Id="WixUI_InstallDir" />
         <!--<Property Id="FRAMEWORK20">
             <RegistrySearch Id="Framework20Registry" Type="raw" Root="HKLM" Key="Software\Microsoft\NET Framework Setup\NDP\v2.0.50727" Name="Install" />
         </Property>
