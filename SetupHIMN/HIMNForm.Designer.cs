@@ -40,13 +40,13 @@
             this.btnRemove = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_vms)).BeginInit();
             this.SuspendLayout();
-            // 
+            //
             // dgv_vms
-            // 
+            //
             this.dgv_vms.AllowUserToAddRows = false;
             this.dgv_vms.AllowUserToDeleteRows = false;
-            this.dgv_vms.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.dgv_vms.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgv_vms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgv_vms.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -61,53 +61,53 @@
             this.dgv_vms.RowHeadersVisible = false;
             this.dgv_vms.Size = new System.Drawing.Size(784, 228);
             this.dgv_vms.TabIndex = 0;
-            // 
+            //
             // XenServer
-            // 
-            this.XenServer.HeaderText = "XenServer";
-            this.XenServer.Name = "XenServer";
+            //
+            this.XenServer.HeaderText = "Host";
+            this.XenServer.Name = "Host";
             this.XenServer.ReadOnly = true;
             this.XenServer.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
+            //
             // VM
-            // 
+            //
             this.VM.HeaderText = "VM";
             this.VM.Name = "VM";
             this.VM.ReadOnly = true;
             this.VM.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
+            //
             // PowerState
-            // 
+            //
             this.PowerState.FillWeight = 70F;
             this.PowerState.HeaderText = "Power State";
             this.PowerState.Name = "PowerState";
             this.PowerState.ReadOnly = true;
             this.PowerState.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
+            //
             // pv_installed
-            // 
+            //
             this.pv_installed.HeaderText = "PV";
             this.pv_installed.Name = "pv_installed";
             this.pv_installed.ReadOnly = true;
             this.pv_installed.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.pv_installed.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
+            //
             // Status
-            // 
+            //
             this.Status.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.Status.HeaderText = "Status";
             this.Status.Name = "Status";
             this.Status.ReadOnly = true;
             this.Status.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
+            //
             // Selected
-            // 
+            //
             this.Selected.HeaderText = "";
             this.Selected.Name = "Selected";
             this.Selected.Width = 30;
-            // 
+            //
             // btnClose
-            // 
+            //
             this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnClose.Location = new System.Drawing.Point(702, 231);
             this.btnClose.Name = "btnClose";
@@ -116,9 +116,9 @@
             this.btnClose.Text = "Close";
             this.btnClose.UseVisualStyleBackColor = true;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
-            // 
+            //
             // btnAdd
-            // 
+            //
             this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnAdd.Enabled = false;
             this.btnAdd.Location = new System.Drawing.Point(616, 231);
@@ -127,9 +127,9 @@
             this.btnAdd.TabIndex = 2;
             this.btnAdd.Text = "Add";
             this.btnAdd.UseVisualStyleBackColor = true;
-            // 
+            //
             // btnRemove
-            // 
+            //
             this.btnRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnRemove.Enabled = false;
             this.btnRemove.Location = new System.Drawing.Point(530, 231);
@@ -138,9 +138,9 @@
             this.btnRemove.TabIndex = 3;
             this.btnRemove.Text = "Remove";
             this.btnRemove.UseVisualStyleBackColor = true;
-            // 
+            //
             // HIMNForm
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 262);
