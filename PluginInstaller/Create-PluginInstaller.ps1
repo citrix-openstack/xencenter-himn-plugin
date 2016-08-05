@@ -28,8 +28,8 @@ param(
   #$lib = "$wix\\WixUI.wixlib",
   $ui_ref = "WixUI_Mondo",
   $title = "UserPlugins",
-  $manufacturer = "Citrix",
-  $description = "XenCenter Plugins",
+  $manufacturer = $env:MANUFACTURER_NAME,
+  $description = $env:PRODUCT_NAME + " Plugins",
   $product_version = "1.0.0.0",
   $upgrade_code = "8282b90a-cb51-4c02-a1c1-ecfcff9861bf",
   $product_code = "8282b90a-cb51-4c02-a1c1-ecfcff9861bf",
@@ -50,12 +50,19 @@ if($help) {
   return;
 }
 
+$pluginXmlPath = "plugins\\"+$env:MANUFACTURER_NAME+"\\SetupHIMN\\SetupHIMN.xcplugin.xml"
+$pluginXml = Get-Content $pluginXmlPath
+$pluginXml = $pluginXml -replace "%MANUFACTURER_NAME%",$env:MANUFACTURER_NAME -replace "%HYPERVISOR_NAME%",$env:HYPERVISOR_NAME -replace "%PRODUCT_NAME%",$env:PRODUCT_NAME -replace "%PLUGIN_VERSION%",$env:PLUGIN_VERSION
+Set-Content -Path $pluginXmlPath -Value $pluginXml
+
 #$wix_template = "{0}\\InstallerTemplate.wxs" -f (get-location);
 
 $scriptFolder = Split-Path $MyInvocation.MyCommand.Path -Parent
 $scriptFile = "{0}\wix-template.xml" -f $scriptFolder
 
 [string]$template = Get-Content $scriptFile
+
+$template = $template -replace "%MANUFACTURER_NAME%",$env:MANUFACTURER_NAME -replace "%HYPERVISOR_NAME%",$env:HYPERVISOR_NAME -replace "%PRODUCT_NAME%",$env:PRODUCT_NAME -replace "%PLUGIN_VERSION%",$env:PLUGIN_VERSION
 
 $plugins_element_xpath = "/*/*/*/*/*/*/*";
 $product_element_xpath = "/*/*";
@@ -69,7 +76,7 @@ $wxs_file = ("{0}\{1}.wxs" -f (get-location), ($out).Replace(".msi", ""))
 $default_title = "UserPlugins";
 $default_title_cab = "UserPluginscab";
 $default_manufacturer = "Default Manufacturer";
-$default_description = "XenCenter Plugins";
+$default_description = $env:PRODUCT_NAME + " Plugins";
 $default_product_version = "<?version-long>";
 $default_upgrade_code = "8282b90a-cb51-4c02-a1c1-ecfcff9861bf";
 $default_product_code = "67d68e4a-82d2-4a7d-a909-cfce92dbe71a";
@@ -285,7 +292,7 @@ function main {
           $feature_node = [System.Xml.XmlElement]$doc.CreateNode([System.Xml.XmlNodeType]::Element,"Feature",$wix_ns);
           $foo = gen-id $feature_node $name;
           $feature_node.SetAttribute("Title", $name);
-          $feature_node.SetAttribute("Description", "XenCenter plugin provided by {0}" -f $name);
+          $feature_node.SetAttribute("Description", $env:PRODUCT_NAME + " plugin provided by {0}" -f $name);
           $feature_node.SetAttribute("Display", "expand");
           $feature_node.SetAttribute("Level", "1");
           $feature_node.SetAttribute("ConfigurableDirectory", "INSTALLDIR");

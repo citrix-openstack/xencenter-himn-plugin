@@ -4,25 +4,28 @@ echo WiX 3.7 is assumed installed to compile the installer
 
 @set "PATH=%windir%\Microsoft.NET\Framework\v3.5;%PATH%"
 
-for /f "tokens=4 delims= " %%a in ('findstr /r /c:"plugin_version=\"[0-9][0-9]*.[0-9][0-9]*.[0-9][0-9]*\"" SetupHIMN.xcplugin.xml') do @set seg=%%a
+for /f "delims=" %%L in (branding.inc) do SET "%%L"
 
-set ver=%seg:~16,-2%
+echo "Company Name: %MANUFACTURER_NAME%"
+echo "Hypervisor Name: %HYPERVISOR_NAME%"
+echo "Client Name: %PRODUCT_NAME%"
+echo "Plugin Version: %PLUGIN_VERSION%"
+echo "PRODUCT Code: %PRODUCT_CODE%"
 
 del .\SetupHIMN.msi /q
-del .\plugins /q
-del .\output /q
-mkdir plugins\Citrix\SetupHIMN
+rmdir .\plugins /s /q
+rmdir .\output /s /q
+mkdir plugins\%MANUFACTURER_NAME%\SetupHIMN
 mkdir output
 
+copy SetupHIMN* plugins\%MANUFACTURER_NAME%\SetupHIMN
+copy *.dll plugins\%MANUFACTURER_NAME%\SetupHIMN
+copy AppIcon.ico plugins\%MANUFACTURER_NAME%\SetupHIMN
 
-copy SetupHIMN* plugins\Citrix\SetupHIMN
-copy *.dll plugins\Citrix\SetupHIMN
-copy AppIcon.ico plugins\Citrix\SetupHIMN
-
-csc /target:winexe /out:plugins\Citrix\SetupHIMN\SetupHIMN.exe /reference:XenServer.dll Program.cs HIMNForm.cs HIMNForm.Designer.cs
+csc /target:winexe /out:plugins\%MANUFACTURER_NAME%\SetupHIMN\SetupHIMN.exe /reference:XenServer.dll Program.cs HIMNForm.cs HIMNForm.Designer.cs
 
 Echo creating installer
-powershell -ExecutionPolicy ByPass -File ..\PluginInstaller\Create-PluginInstaller.ps1 -out .\output\SetupHIMN-%ver%.msi -title "XenCenter Setup HIMN Plugin" -description "Setup Host Internal Management Network for Guest VM" -manufacturer "Citrix" -upgrade_code $([System.Guid]::NewGuid().ToString())
+powershell -ExecutionPolicy ByPass -File ..\PluginInstaller\Create-PluginInstaller.ps1 -out .\output\SetupHIMN-%PLUGIN_VERSION%.msi -title "%PRODUCT_NAME% Setup HIMN Plugin" -description "Setup Host Internal Management Network for Guest VM" -manufacturer "%MANUFACTURER_NAME%" -upgrade_code $([System.Guid]::NewGuid().ToString()) -product_code "%PRODUCT_CODE%"
 
 Del .\output\*.r* /q
 Del .\output\*.w* /q

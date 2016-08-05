@@ -17,7 +17,7 @@ namespace HIMN
 {
     static class Program
     {
-        const string LOG_ROOT = "XCHIMN.log";
+        const string LOG_ROOT = "HIMN.log";
         const string APP_ICON = "AppIcon.ico";
         const string HIMN_MAC = "vm-data/himn_mac";
         const string HIMN_NAME_LABEL = "Host internal management network";
