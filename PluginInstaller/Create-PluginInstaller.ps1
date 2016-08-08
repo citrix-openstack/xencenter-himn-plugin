@@ -1,68 +1,26 @@
-############################
-#
-# Note: May need to edit WiX location based on local install
-#
-# Expected plugin directory structure:
-#   $pluginDir
-#   |-<org_0>
-#   ||-<plugin_0>
-#   |||-<plugin_files>
-#   ||-<plugin_1>
-#   |||-<plugin_files>
-#   ||-<plugin_2>
-#   |||-<plugin_files>
-#   |-<org_1>
-#   ||-<plugin_0>
-#   |||-<plugin_files>
-# etc.
-#
-# other files below $plugins directory will be included, eg READMEs
-#
-############################
 
 param(
   $plugins = ("{0}\\Plugins" -f (get-location)),
   $out = "SamplePlugin.msi",
   $wix = "$env:WIX\\bin",
-  #$loc = "$wix\\WixUI_en-us.wxl",
-  #$lib = "$wix\\WixUI.wixlib",
   $ui_ref = "WixUI_Mondo",
-  $title = "UserPlugins",
-  $manufacturer = $env:MANUFACTURER_NAME,
-  $description = $env:PRODUCT_NAME + " Plugins",
-  $product_version = "1.0.0.0",
-  $upgrade_code = "8282b90a-cb51-4c02-a1c1-ecfcff9861bf",
-  $product_code = "8282b90a-cb51-4c02-a1c1-ecfcff9861bf",
-  $version_short = "1.0",
-  $icon,
-  [switch]$debug,
-  [switch]$help
-  );
 
-if($help) {
-  write-host @"
+  $title = "$env:PRODUCT_NAME Setup HIMN Plugin",
+  $description = "Setup Host Internal Management Network for Guest VM",
 
-  PluginInstaller Creator:
-
-  Create-PluginInstaller [-plugins] <top folder path> [-out] <name of output msi> [-wix <location of wix binaries>] [-loc <location of wix strings>] [-lib <wix ui description library>] [-ui_ref <Wix UI reference>] [-title <name of installation>] [-manufacturer <plugin manufacturer>] [-description <description of plugins>] [-product_version <plugin version>] [-upgrade_code <guid for upgrading>] [-product_code <guid of product>] [-version_short <two number version>] [-icon <path to add/remove programs icon>] [-debug] [-help]
-
-"@
-  return;
-}
+  $icon
+);
 
 $pluginXmlPath = "plugins\\"+$env:MANUFACTURER_NAME+"\\SetupHIMN\\SetupHIMN.xcplugin.xml"
 $pluginXml = Get-Content $pluginXmlPath
-$pluginXml = $pluginXml -replace "%MANUFACTURER_NAME%",$env:MANUFACTURER_NAME -replace "%HYPERVISOR_NAME%",$env:HYPERVISOR_NAME -replace "%PRODUCT_NAME%",$env:PRODUCT_NAME -replace "%PLUGIN_VERSION%",$env:PLUGIN_VERSION
+$pluginXml = $pluginXml `
+  -replace "%MANUFACTURER_NAME%",$env:MANUFACTURER_NAME `
+  -replace "%PLUGIN_VERSION%",$env:PLUGIN_VERSION
 Set-Content -Path $pluginXmlPath -Value $pluginXml
-
-#$wix_template = "{0}\\InstallerTemplate.wxs" -f (get-location);
 
 $scriptFolder = Split-Path $MyInvocation.MyCommand.Path -Parent
 $scriptFile = "{0}\wix-template.xml" -f $scriptFolder
-
 [string]$template = Get-Content $scriptFile
-
-$template = $template -replace "%MANUFACTURER_NAME%",$env:MANUFACTURER_NAME -replace "%HYPERVISOR_NAME%",$env:HYPERVISOR_NAME -replace "%PRODUCT_NAME%",$env:PRODUCT_NAME -replace "%PLUGIN_VERSION%",$env:PLUGIN_VERSION
 
 $plugins_element_xpath = "/*/*/*/*/*/*/*";
 $product_element_xpath = "/*/*";
@@ -73,14 +31,6 @@ $candle_format = "& '{0}\candle.exe' {1}.wxs -out .\output\ -nologo";
 $light_format = "& '{0}\light.exe' -out {1}.msi {1}.wixobj -ext WixUIExtension -cultures:en-us -nologo"
 $wxs_file = ("{0}\{1}.wxs" -f (get-location), ($out).Replace(".msi", ""))
 
-$default_title = "UserPlugins";
-$default_title_cab = "UserPluginscab";
-$default_manufacturer = "Default Manufacturer";
-$default_description = $env:PRODUCT_NAME + " Plugins";
-$default_product_version = "<?version-long>";
-$default_upgrade_code = "8282b90a-cb51-4c02-a1c1-ecfcff9861bf";
-$default_product_code = "67d68e4a-82d2-4a7d-a909-cfce92dbe71a";
-$default_version_short = "<?version-short>";
 
 function main {
 
@@ -123,17 +73,17 @@ function main {
 
     function prep-template {
       $contents = $template
+      $contents = $contents.Replace("%MANUFACTURER_NAME%", "$env:MANUFACTURER_NAME");
+      $contents = $contents.Replace("%HYPERVISOR_NAME%", "$env:HYPERVISOR_NAME");
+      $contents = $contents.Replace("%PRODUCT_NAME%", "$env:PRODUCT_NAME");
+      $contents = $contents.Replace("%PLUGIN_VERSION%", "$env:PLUGIN_VERSION");
+      $contents = $contents.Replace("%PRODUCT_CODE%", "$env:PRODUCT_CODE");
+      $contents = $contents.Replace("%UPGRADE_CODE%", "$env:UPGRADE_CODE");
 
-      if ( $upgrade_code -match "$" ) { $upgrade_code = Invoke-Expression ($upgrade_code) }
+      $contents = $contents.Replace("%TITLE%", $title);
+      $contents = $contents.Replace("%TITLE_CAB%", $title.Replace(" ", "_"));
+      $contents = $contents.Replace("%DESCRIPTION%", $description);
 
-      $contents = $contents.Replace($default_title_cab, $title.Replace(" ", "_"));
-      $contents = $contents.Replace($default_title, $title);
-      $contents = $contents.Replace($default_manufacturer, $manufacturer);
-      $contents = $contents.Replace($default_description, $description);
-      $contents = $contents.Replace($default_product_version, $product_version);
-      $contents = $contents.Replace($default_upgrade_code, $upgrade_code);
-      $contents = $contents.Replace($default_product_code, $product_code);
-      $contents = $contents.Replace($default_version_short, $version_short);
       Set-Content $wxs_file $contents;
     }
 

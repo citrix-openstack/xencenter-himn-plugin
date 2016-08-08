@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <?define ProductVersion="<?version-long>" ?>
-  <?define UpgradeCode="8282b90a-cb51-4c02-a1c1-ecfcff9861bf"?>
-  <?define ProductCode="67d68e4a-82d2-4a7d-a909-cfce92dbe71a"?>
-  <?define VersionShort="<?version-short>" ?>
-  <Product Id="$(var.ProductCode)" Name="UserPlugins" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Default Manufacturer" UpgradeCode="$(var.UpgradeCode)">
-    <Package Description="%PRODUCT_NAME% Plugins" InstallerVersion="200" Compressed="yes" />
-    <Media Id="1" Cabinet="UserPluginscab.cab" EmbedCab="yes" />
+  <?define PLUGIN_VERSION="%PLUGIN_VERSION%" ?>
+  <?define UPGRADE_CODE="%UPGRADE_CODE%"?>
+  <?define PRODUCT_CODE="%PRODUCT_CODE%"?>
+  <?define TITLE="%TITLE%" ?>
+  <?define TITLE_CAB="%TITLE_CAB%" ?>
+  <?define HYPERVISOR_NAME="%HYPERVISOR_NAME%" ?>
+  <?define MANUFACTURER_NAME="%MANUFACTURER_NAME%" ?>
+  <?define PRODUCT_NAME="%PRODUCT_NAME%" ?>
+  <?define DESCRIPTION="%DESCRIPTION%" ?>
+
+  <Product Id="$(var.PRODUCT_CODE)" Name="$(var.TITLE)" Language="1033" Version="$(var.PLUGIN_VERSION)" Manufacturer="$(var.MANUFACTURER_NAME)" UpgradeCode="$(var.UPGRADE_CODE)">
+    <Package Description="$(var.DESCRIPTION)" InstallerVersion="200" Compressed="yes" />
+    <Media Id="1" Cabinet="$(var.TITLE_CAB).cab" EmbedCab="yes" />
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="%MANUFACTURER_NAME%" Name="%MANUFACTURER_NAME%">
-          <Directory Id="INSTALLDIR" Name="%HYPERVISOR_NAME%">
+        <Directory Id="$(var.MANUFACTURER_NAME)" Name="$(var.MANUFACTURER_NAME)">
+          <Directory Id="INSTALLDIR" Name="$(var.HYPERVISOR_NAME)">
             <Directory Id="XCPlugins" Name="Plugins" />
           </Directory>
         </Directory>
@@ -20,16 +26,6 @@
     </Directory>
 
     <UI Id="WixUI_Mondo">
-      <!--
-    <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
-    <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
-    <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
-
-    <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
-
-    <Property Id="WixUI_Mode" Value="Minimal" />
-    -->
-
       <DialogRef Id="ErrorDlg" />
       <DialogRef Id="FatalError" />
       <DialogRef Id="FilesInUse" />
@@ -46,22 +42,6 @@
       <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg"  Order="2">1</Publish>
       <!-- skip the page on the way back too -->
       <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg"  Order="2">1</Publish>
-      <!-- Hook the new welcome dialog to the next one in the stack-->
-      <!--
-    <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="PrepareDlg">1</Publish>
-
-    <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
-
-    <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
-
-    <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
-
-    <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
-    <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
-    <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
-
-    <Property Id="ARPNOMODIFY" Value="1" />
-    -->
     </UI>
 
     <UIRef Id="WixUI_Common" />
@@ -69,38 +49,17 @@
     <UIRef Id="WixUI_ErrorProgressText" />
     <Property Id="Install_All" Value="0" />
     <Property Id="INSTALLDIR">
-      <RegistrySearch Id="%PRODUCT_NAME%RegistryLM" Type="raw" Root="HKLM" Key="Software\%MANUFACTURER_NAME%\%PRODUCT_NAME%" Name="InstallDir" />
-      <RegistrySearch Id="%PRODUCT_NAME%RegistryCU" Type="raw" Root="HKCU" Key="Software\%MANUFACTURER_NAME%\%PRODUCT_NAME%" Name="InstallDir" />
+      <RegistrySearch Id="$(var.PRODUCT_NAME)RegistryLM" Type="raw" Root="HKLM" Key="Software\$(var.MANUFACTURER_NAME)\$(var.PRODUCT_NAME)" Name="InstallDir" />
+      <RegistrySearch Id="$(var.PRODUCT_NAME)RegistryCU" Type="raw" Root="HKCU" Key="Software\$(var.MANUFACTURER_NAME)\$(var.PRODUCT_NAME)" Name="InstallDir" />
     </Property>
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
     <UIRef Id="WixUI_InstallDir" />
-    <!--<Property Id="FRAMEWORK20">
-            <RegistrySearch Id="Framework20Registry" Type="raw" Root="HKLM" Key="Software\Microsoft\NET Framework Setup\NDP\v2.0.50727" Name="Install" />
-        </Property>
-        <Property Id="POWERSHELL10">
-            <RegistrySearch Id="PowerShell10Registry" Type="raw" Root="HKLM" Key="Software\Microsoft\PowerShell\1" Name="Install" />
-        </Property>
-        -->
-    <Property Id="ARPPRODUCTICON" Value="%PRODUCT_NAME%ICO" />
-    <Upgrade Id="$(var.UpgradeCode)">
-      <!--<UpgradeVersion Property="UPGRADEFOUND" ExcludeLanguages="yes" Minimum="0.0.0" IncludeMinimum="yes" Maximum="$(var.ProductVersion)" IncludeMaximum="yes" />-->
-      <UpgradeVersion OnlyDetect="yes" Minimum="$(var.ProductVersion)" Property="NEWERVERSIONDETECTED" IncludeMinimum="no" />
-      <UpgradeVersion OnlyDetect="no" Maximum="$(var.ProductVersion)" Property="OLDERVERSIONBEINGUPGRADED" IncludeMaximum="no" />
-      <UpgradeVersion OnlyDetect="yes" ExcludeLanguages="yes" Property="NEWERPRODUCTFOUND" Minimum="$(var.ProductVersion)" IncludeMinimum="no" />
+    <Property Id="ARPPRODUCTICON" Value="$(var.PRODUCT_NAME)ICO" />
+    <Upgrade Id="$(var.UPGRADE_CODE)">
+      <UpgradeVersion OnlyDetect="yes" Minimum="$(var.PLUGIN_VERSION)" Property="NEWERVERSIONDETECTED" IncludeMinimum="no" />
+      <UpgradeVersion OnlyDetect="no" Maximum="$(var.PLUGIN_VERSION)" Property="OLDERVERSIONBEINGUPGRADED" IncludeMaximum="no" />
+      <UpgradeVersion OnlyDetect="yes" ExcludeLanguages="yes" Property="NEWERPRODUCTFOUND" Minimum="$(var.PLUGIN_VERSION)" IncludeMinimum="no" />
     </Upgrade>
-    <!--<CustomAction Id="PreventDowngrading" Error="There is a newer product already installed" />-->
-    <!--<Condition Message=".NET Framework 2.0 is not present on the computer.">
-      FRAMEWORK20 = "#1"
-    </Condition>
-        <Condition Message="Microsoft PowerShell 1.0 is not present on the computer.">
-      POWERSHELL10 = "#1"
-    </Condition>
-    -->
-    <!--<InstallUISequence>
-            <FindRelatedProducts Sequence="1100" />
-            <ExecuteAction Sequence="1150" />
-        </InstallUISequence>
-        -->
     <InstallExecuteSequence>
       <AppSearch Sequence="50" />
       <LaunchConditions Sequence="100" />
@@ -108,8 +67,7 @@
       <CostInitialize Sequence="800" />
       <FileCost Sequence="900" />
       <CostFinalize Sequence="1000" />
-      <FindRelatedProducts Sequence="1100" />
-      <!--<Custom Action="PreventDowngrading" Sequence="1101">NEWERPRODUCTFOUND</Custom>-->
+      <!-- <FindRelatedProducts Sequence="1100" /> -->
       <MigrateFeatureStates Sequence="1200" />
       <InstallValidate Sequence="1400" />
       <InstallInitialize Sequence="1500" />
