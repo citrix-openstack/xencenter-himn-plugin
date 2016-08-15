@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <?define ProductVersion="<?version-long>" ?>
-    <?define UpgradeCode="8282b90a-cb51-4c02-a1c1-ecfcff9861bf"?>
-    <?define ProductCode="67d68e4a-82d2-4a7d-a909-cfce92dbe71a"?>
-    <?define VersionShort="<?version-short>" ?>
-    <Product Id="$(var.ProductCode)" Name="UserPlugins" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Default Manufacturer" UpgradeCode="$(var.UpgradeCode)">
-        <Package Description="%PRODUCT_NAME% Plugins" InstallerVersion="200" Compressed="yes" />
-        <Media Id="1" Cabinet="UserPluginscab.cab" EmbedCab="yes" />
-        <Directory Id="TARGETDIR" Name="SourceDir">
-            <Directory Id="ProgramFilesFolder">
-                <Directory Id="%MANUFACTURER_NAME%" Name="%MANUFACTURER_NAME%">
-                    <Directory Id="INSTALLDIR" Name="%HYPERVISOR_NAME%">
-                        <Directory Id="XCPlugins" Name="Plugins" />
-                    </Directory>
-                </Directory>
-            </Directory>
-            <Directory Id="ProgramMenuFolder" />
-            <Directory Id="DesktopFolder" />
+  <?define ProductVersion="<?version-long>" ?>
+  <?define UpgradeCode="8282b90a-cb51-4c02-a1c1-ecfcff9861bf"?>
+  <?define ProductCode="67d68e4a-82d2-4a7d-a909-cfce92dbe71a"?>
+  <?define VersionShort="<?version-short>" ?>
+  <Product Id="$(var.ProductCode)" Name="UserPlugins" Language="1033" Version="$(var.ProductVersion)" Manufacturer="Default Manufacturer" UpgradeCode="$(var.UpgradeCode)">
+    <Package Description="%PRODUCT_NAME% Plugins" InstallerVersion="200" Compressed="yes" />
+    <Media Id="1" Cabinet="UserPluginscab.cab" EmbedCab="yes" />
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="%MANUFACTURER_NAME%" Name="%MANUFACTURER_NAME%">
+          <Directory Id="INSTALLDIR" Name="%HYPERVISOR_NAME%">
+            <Directory Id="XCPlugins" Name="Plugins" />
+          </Directory>
         </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder" />
+      <Directory Id="DesktopFolder" />
+    </Directory>
 
-  <UI Id="WixUI_Mondo">
-    <!--
+    <UI Id="WixUI_Mondo">
+      <!--
     <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
     <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
     <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
@@ -30,24 +30,24 @@
     <Property Id="WixUI_Mode" Value="Minimal" />
     -->
 
-    <DialogRef Id="ErrorDlg" />
-    <DialogRef Id="FatalError" />
-    <DialogRef Id="FilesInUse" />
-    <DialogRef Id="MsiRMFilesInUse" />
-    <DialogRef Id="PrepareDlg" />
-    <DialogRef Id="ProgressDlg" />
-    <DialogRef Id="ResumeDlg" />
-    <DialogRef Id="UserExit" />
-    <DialogRef Id="InstallDirDlg" />
+      <DialogRef Id="ErrorDlg" />
+      <DialogRef Id="FatalError" />
+      <DialogRef Id="FilesInUse" />
+      <DialogRef Id="MsiRMFilesInUse" />
+      <DialogRef Id="PrepareDlg" />
+      <DialogRef Id="ProgressDlg" />
+      <DialogRef Id="ResumeDlg" />
+      <DialogRef Id="UserExit" />
+      <DialogRef Id="InstallDirDlg" />
 
-    <!-- This is the welcome dialog you specified-->
-    <DialogRef Id="WelcomeDlg" />
+      <!-- This is the welcome dialog you specified-->
+      <DialogRef Id="WelcomeDlg" />
 
-    <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg"  Order="2">1</Publish>
-    <!-- skip the page on the way back too -->
-    <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg"  Order="2">1</Publish>
-    <!-- Hook the new welcome dialog to the next one in the stack-->
-    <!--
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg"  Order="2">1</Publish>
+      <!-- skip the page on the way back too -->
+      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg"  Order="2">1</Publish>
+      <!-- Hook the new welcome dialog to the next one in the stack-->
+      <!--
     <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="PrepareDlg">1</Publish>
 
     <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
@@ -62,71 +62,71 @@
 
     <Property Id="ARPNOMODIFY" Value="1" />
     -->
-  </UI>
+    </UI>
 
-  <UIRef Id="WixUI_Common" />
+    <UIRef Id="WixUI_Common" />
 
-      <UIRef Id="WixUI_ErrorProgressText" />
-        <Property Id="Install_All" Value="0" />
-        <Property Id="INSTALLDIR">
-            <RegistrySearch Id="%PRODUCT_NAME%RegistryLM" Type="raw" Root="HKLM" Key="Software\%MANUFACTURER_NAME%\%PRODUCT_NAME%" Name="InstallDir" />
-            <RegistrySearch Id="%PRODUCT_NAME%RegistryCU" Type="raw" Root="HKCU" Key="Software\%MANUFACTURER_NAME%\%PRODUCT_NAME%" Name="InstallDir" />
-        </Property>
-        <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
-        <UIRef Id="WixUI_InstallDir" />
-        <!--<Property Id="FRAMEWORK20">
+    <UIRef Id="WixUI_ErrorProgressText" />
+    <Property Id="Install_All" Value="0" />
+    <Property Id="INSTALLDIR">
+      <RegistrySearch Id="%PRODUCT_NAME%RegistryLM" Type="raw" Root="HKLM" Key="Software\%MANUFACTURER_NAME%\%PRODUCT_NAME%" Name="InstallDir" />
+      <RegistrySearch Id="%PRODUCT_NAME%RegistryCU" Type="raw" Root="HKCU" Key="Software\%MANUFACTURER_NAME%\%PRODUCT_NAME%" Name="InstallDir" />
+    </Property>
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <UIRef Id="WixUI_InstallDir" />
+    <!--<Property Id="FRAMEWORK20">
             <RegistrySearch Id="Framework20Registry" Type="raw" Root="HKLM" Key="Software\Microsoft\NET Framework Setup\NDP\v2.0.50727" Name="Install" />
         </Property>
         <Property Id="POWERSHELL10">
             <RegistrySearch Id="PowerShell10Registry" Type="raw" Root="HKLM" Key="Software\Microsoft\PowerShell\1" Name="Install" />
         </Property>
         -->
-        <Property Id="ARPPRODUCTICON" Value="%PRODUCT_NAME%ICO" />
-        <Upgrade Id="$(var.UpgradeCode)">
-          <!--<UpgradeVersion Property="UPGRADEFOUND" ExcludeLanguages="yes" Minimum="0.0.0" IncludeMinimum="yes" Maximum="$(var.ProductVersion)" IncludeMaximum="yes" />-->
-          <UpgradeVersion OnlyDetect="yes" Minimum="$(var.ProductVersion)" Property="NEWERVERSIONDETECTED" IncludeMinimum="no" />
-          <UpgradeVersion OnlyDetect="no" Maximum="$(var.ProductVersion)" Property="OLDERVERSIONBEINGUPGRADED" IncludeMaximum="no" />
-          <UpgradeVersion OnlyDetect="yes" ExcludeLanguages="yes" Property="NEWERPRODUCTFOUND" Minimum="$(var.ProductVersion)" IncludeMinimum="no" />
-        </Upgrade>
-        <!--<CustomAction Id="PreventDowngrading" Error="There is a newer product already installed" />-->
-        <!--<Condition Message=".NET Framework 2.0 is not present on the computer.">
+    <Property Id="ARPPRODUCTICON" Value="%PRODUCT_NAME%ICO" />
+    <Upgrade Id="$(var.UpgradeCode)">
+      <!--<UpgradeVersion Property="UPGRADEFOUND" ExcludeLanguages="yes" Minimum="0.0.0" IncludeMinimum="yes" Maximum="$(var.ProductVersion)" IncludeMaximum="yes" />-->
+      <UpgradeVersion OnlyDetect="yes" Minimum="$(var.ProductVersion)" Property="NEWERVERSIONDETECTED" IncludeMinimum="no" />
+      <UpgradeVersion OnlyDetect="no" Maximum="$(var.ProductVersion)" Property="OLDERVERSIONBEINGUPGRADED" IncludeMaximum="no" />
+      <UpgradeVersion OnlyDetect="yes" ExcludeLanguages="yes" Property="NEWERPRODUCTFOUND" Minimum="$(var.ProductVersion)" IncludeMinimum="no" />
+    </Upgrade>
+    <!--<CustomAction Id="PreventDowngrading" Error="There is a newer product already installed" />-->
+    <!--<Condition Message=".NET Framework 2.0 is not present on the computer.">
       FRAMEWORK20 = "#1"
     </Condition>
         <Condition Message="Microsoft PowerShell 1.0 is not present on the computer.">
       POWERSHELL10 = "#1"
     </Condition>
     -->
-        <!--<InstallUISequence>
+    <!--<InstallUISequence>
             <FindRelatedProducts Sequence="1100" />
             <ExecuteAction Sequence="1150" />
         </InstallUISequence>
         -->
-        <InstallExecuteSequence>
-            <AppSearch Sequence="50" />
-            <LaunchConditions Sequence="100" />
-            <ValidateProductID Sequence="700" />
-            <CostInitialize Sequence="800" />
-            <FileCost Sequence="900" />
-            <CostFinalize Sequence="1000" />
-            <FindRelatedProducts Sequence="1100" />
-            <!--<Custom Action="PreventDowngrading" Sequence="1101">NEWERPRODUCTFOUND</Custom>-->
-            <MigrateFeatureStates Sequence="1200" />
-            <InstallValidate Sequence="1400" />
-            <InstallInitialize Sequence="1500" />
-            <RemoveExistingProducts Sequence="1502" />
-            <ProcessComponents Sequence="1600" />
-            <UnpublishFeatures Sequence="1800" />
-            <RemoveRegistryValues Sequence="2600" />
-            <RemoveShortcuts Sequence="3200" />
-            <RemoveFiles Sequence="3500" />
-            <InstallFiles Sequence="4000" />
-            <CreateShortcuts Sequence="4500" />
-            <WriteRegistryValues Sequence="5000" />
-            <RegisterUser Sequence="6000" />
-            <RegisterProduct Sequence="6100" />
-            <PublishFeatures Sequence="6300" />
-            <PublishProduct Sequence="6400" />
-            <InstallFinalize Sequence="6600" />
-        </InstallExecuteSequence>
-    </Product>
+    <InstallExecuteSequence>
+      <AppSearch Sequence="50" />
+      <LaunchConditions Sequence="100" />
+      <ValidateProductID Sequence="700" />
+      <CostInitialize Sequence="800" />
+      <FileCost Sequence="900" />
+      <CostFinalize Sequence="1000" />
+      <FindRelatedProducts Sequence="1100" />
+      <!--<Custom Action="PreventDowngrading" Sequence="1101">NEWERPRODUCTFOUND</Custom>-->
+      <MigrateFeatureStates Sequence="1200" />
+      <InstallValidate Sequence="1400" />
+      <InstallInitialize Sequence="1500" />
+      <RemoveExistingProducts Sequence="1502" />
+      <ProcessComponents Sequence="1600" />
+      <UnpublishFeatures Sequence="1800" />
+      <RemoveRegistryValues Sequence="2600" />
+      <RemoveShortcuts Sequence="3200" />
+      <RemoveFiles Sequence="3500" />
+      <InstallFiles Sequence="4000" />
+      <CreateShortcuts Sequence="4500" />
+      <WriteRegistryValues Sequence="5000" />
+      <RegisterUser Sequence="6000" />
+      <RegisterProduct Sequence="6100" />
+      <PublishFeatures Sequence="6300" />
+      <PublishProduct Sequence="6400" />
+      <InstallFinalize Sequence="6600" />
+    </InstallExecuteSequence>
+  </Product>
 </Wix>
