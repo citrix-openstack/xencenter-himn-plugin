@@ -6,12 +6,6 @@ echo WiX 3.7 is assumed installed to compile the installer
 
 for /f "delims=" %%L in (branding.inc) do SET "%%L"
 
-echo "Company Name: %MANUFACTURER_NAME%"
-echo "Hypervisor Name: %HYPERVISOR_NAME%"
-echo "Client Name: %PRODUCT_NAME%"
-echo "Plugin Version: %PLUGIN_VERSION%"
-echo "PRODUCT Code: %PRODUCT_CODE%"
-
 del .\SetupHIMN.msi /q
 rmdir .\plugins /s /q
 rmdir .\output /s /q
@@ -24,8 +18,7 @@ copy AppIcon.ico plugins\%MANUFACTURER_NAME%\SetupHIMN
 
 csc /target:winexe /out:plugins\%MANUFACTURER_NAME%\SetupHIMN\SetupHIMN.exe /reference:XenServer.dll Program.cs HIMNForm.cs HIMNForm.Designer.cs
 
-Echo creating installer
-powershell -ExecutionPolicy ByPass -File ..\PluginInstaller\Create-PluginInstaller.ps1 -out .\output\SetupHIMN-%PLUGIN_VERSION%.msi -title "%PRODUCT_NAME% Setup HIMN Plugin" -description "Setup Host Internal Management Network for Guest VM" -manufacturer "%MANUFACTURER_NAME%" -upgrade_code $([System.Guid]::NewGuid().ToString()) -product_code "%PRODUCT_CODE%"
+powershell -ExecutionPolicy ByPass -File ..\PluginInstaller\Create-PluginInstaller.ps1 -out .\output\SetupHIMN-%PLUGIN_VERSION%.msi
 
 Del .\output\*.r* /q
 Del .\output\*.w* /q
