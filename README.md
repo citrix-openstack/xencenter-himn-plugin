@@ -27,7 +27,7 @@ How to Use
 Logs
 ----
 
-All log files will be stored as `%LOCALAPPDATA%/Temp/XCHIMN.log`.
+All log files will be stored as `%LOCALAPPDATA%/Temp/HIMN.log`.
 
 Under the hood
 --------------
