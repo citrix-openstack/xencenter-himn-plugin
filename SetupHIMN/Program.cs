@@ -59,7 +59,7 @@ namespace HIMN
             {
                 Dictionary<string, string> vm_guest_metrics =
                     VM_guest_metrics.get_PV_drivers_version(session, vm.guest_metrics.opaque_ref);
-                return (vm_guest_metrics.Keys.Count > 0);
+                return (vm_guest_metrics.Keys.Count >= 3);
             }
 
             return false;
@@ -104,36 +104,33 @@ namespace HIMN
 
             try
             {
-                Log(vm_uuid, "DetectStatus");
+                Log(vm_uuid, "DetectingStatus");
 
                 //params
-                Log(vm_uuid, string.Format("url: {0}", url));
-                Log(vm_uuid, string.Format("sessionRef: {0}", sessionRef));
-                Log(vm_uuid, string.Format("vm_uuid: {0}", vm_uuid));
+                Log(vm_uuid, string.Format("[Detect] url: {0}, Session {1}, vm_uuid {2}", url, sessionRef, vm_uuid));
 
                 //session
                 Session session = new Session(url, sessionRef);
-                Log(vm_uuid, "session created");
 
                 //host
                 Host host = Host.get_record(session, session.get_this_host());
-                Log(vm_uuid, "host: " + host.name_label);
+                Log(vm_uuid, "[Detect] host: " + host.name_label);
                 row.Cells[0].Value = host.name_label;
 
                 //vm
                 XenRef<VM> _vm = VM.get_by_uuid(session, vm_uuid);
                 string vmRef = _vm.opaque_ref;
                 VM vm = VM.get_record(session, vmRef);
-                Log(vm_uuid, "vm:" + vm.name_label);
+                Log(vm_uuid, "[Detect] vm:" + vm.name_label);
                 row.Cells[1].Value = vm.name_label;
 
                 //power_state
-                Log(vm_uuid, "power_state:" + vm.power_state);
+                Log(vm_uuid, "[Detect] power_state:" + vm.power_state);
                 row.Cells[2].Value = vm.power_state.ToString();
 
                 //pv installed
                 bool pvInstalled = GetPVInstalled(session, vm);
-                Log(vm_uuid, "pv_installed:" + pvInstalled);
+                Log(vm_uuid, "[Detect] pv_installed:" + pvInstalled);
                 if (vm.power_state == vm_power_state.Running)
                 {
                     row.Cells[3].Value = pvInstalled ? "Installed" : "Not installed";
@@ -149,12 +146,12 @@ namespace HIMN
                 VIF vif = getVIF(session, netRef, vm);
 
                 bool HIMNExists = (vif != null);
-                Log(vm_uuid, "himn_exists:" + HIMNExists);
+                Log(vm_uuid, "[Detect] himn_exists:" + HIMNExists);
                 form.himn_states[i] = HIMNExists;
                 if (HIMNExists)
                 {
                     row.Cells[4].Value = string.Format(
-                        "Already added as VIF '{0}' with MAC '{1}'. ",
+                        "Exists as VIF '{0}' with MAC '{1}'. ",
                         vif.device, vif.MAC);
                 }
                 else
@@ -199,16 +196,12 @@ namespace HIMN
             {
                 DataGridViewCheckBoxCell checkbox = row.Cells[5] as DataGridViewCheckBoxCell;
 
-                Log(vm_uuid, "Add HIMN");
-
                 //params
-                Log(vm_uuid, string.Format("url: {0}", url));
-                Log(vm_uuid, string.Format("sessionRef: {0}", sessionRef));
-                Log(vm_uuid, string.Format("vm_uuid: {0}", vm_uuid));
+                Log(vm_uuid, string.Format("[Add] url: {0}, sessionRef: {1}, vm_uuid {2}", url, sessionRef, vm_uuid));
 
                 if (form.himn_states[i])
                 {
-                    Log(vm_uuid, "himn exists");
+                    Log(vm_uuid, "[Add] himn exists");
                 }
                 else
                 {
@@ -216,13 +209,12 @@ namespace HIMN
 
                     //session
                     Session session = new Session(url, sessionRef);
-                    Log(vm_uuid, "session created");
 
                     //vm
                     XenRef<VM> _vm = VM.get_by_uuid(session, vm_uuid);
                     string vmRef = _vm.opaque_ref;
                     VM vm = VM.get_record(session, vmRef);
-                    Log(vm_uuid, "vm:" + vm.name_label);
+                    Log(vm_uuid, "[Add] vm:" + vm.name_label);
 
                     bool pvInstalled = GetPVInstalled(session, vm);
                     bool RebootRequired = (vm.power_state != vm_power_state.Halted && !pvInstalled);
@@ -231,6 +223,7 @@ namespace HIMN
                     //shutdown
                     if (RebootRequired)
                     {
+                        Log(vm_uuid, "[Add] Shutting down VM");
                         row.Cells[4].Value = "Shuting down...";
 
                         VM.shutdown(session, vmRef);
@@ -249,13 +242,14 @@ namespace HIMN
                     string netRef = _network.opaque_ref;
                     string vifRef = createVIF(session, netRef, vmRef, device);
                     VIF vif = VIF.get_record(session, vifRef);
-                    Log(vm_uuid, string.Format("vif {0} created", vifRef));
+                    Log(vm_uuid, string.Format("[Add] vif {0} created", vifRef));
                     string MAC = vif.MAC;
-                    Log(vm_uuid, string.Format("himn_mac: {0}", MAC));
+                    Log(vm_uuid, string.Format("[Add] himn_mac: {0}", MAC));
 
                     //start vm
                     if (RebootRequired)
                     {
+                        Log(vm_uuid, "[Add] Starting VM");
                         row.Cells[4].Value = "Starting VM...";
                         VM.start(session, vmRef, false, true);
                         while (vm.power_state != vm_power_state.Running)
@@ -269,15 +263,15 @@ namespace HIMN
                     //autoplug
                     if (AutoPlug)
                     {
+                        Log(vm_uuid, "[Add] Plugging");
                         VIF.plug(session, vifRef);
                     }
 
                     //write to xenstore
-                    row.Cells[4].Value = "Writing to xenstore...";
                     SetXenStore(session, vmRef, HIMN_MAC, MAC);
-                    Log(vm_uuid, "xenstore written");
+                    Log(vm_uuid, "[Add] xenstore written");
 
-                    row.Cells[4].Value = string.Format("Added as VIF '{0}' with MAC '{1}'. ",
+                    row.Cells[4].Value = string.Format("Exists as VIF '{0}' with MAC '{1}'. ",
                         vif.device, MAC);
                     form.himn_states[i] = true;
 
@@ -321,25 +315,22 @@ namespace HIMN
 
                 if (!form.himn_states[i])
                 {
-                    Log(vm_uuid, "himn doesn't exist");
+                    Log(vm_uuid, "[Remove] himn doesn't exist");
                 }
                 else
                 {
                     //params
-                    Log(vm_uuid, string.Format("url: {0}", url));
-                    Log(vm_uuid, string.Format("sessionRef: {0}", sessionRef));
-                    Log(vm_uuid, string.Format("vm_uuid: {0}", vm_uuid));
+                    Log(vm_uuid, string.Format("url: {0}, sessionRef: {1}, vm_uuid: {2}", url, sessionRef, vm_uuid));
 
                     row.Cells[4].Value = "Removing internal management network...";
                     //session
                     Session session = new Session(url, sessionRef);
-                    Log(vm_uuid, "session created");
 
                     //vm
                     XenRef<VM> _vm = VM.get_by_uuid(session, vm_uuid);
                     string vmRef = _vm.opaque_ref;
                     VM vm = VM.get_record(session, vmRef);
-                    Log(vm_uuid, "vm:" + vm.name_label);
+                    Log(vm_uuid, "[Remove] vm:" + vm.name_label);
 
                     bool RebootRequired = (vm.power_state != vm_power_state.Halted);
                     bool pvInstalled = GetPVInstalled(session, vm);
@@ -368,7 +359,7 @@ namespace HIMN
                     {
                         VIF.destroy(session, _vif.opaque_ref);
                     }
-                    Log(vm_uuid, string.Format("vif {0} destroyed", vif.device));
+                    Log(vm_uuid, string.Format("[Remove] vif {0} destroyed", vif.device));
 
                     //start vm
                     if (RebootRequired)
@@ -386,7 +377,7 @@ namespace HIMN
                     //write to xenstore
                     row.Cells[4].Value = "Removing from xenstore...";
                     RemoveXenStore(session, vmRef, HIMN_MAC);
-                    Log(vm_uuid, "xenstore removed");
+                    Log(vm_uuid, "[Remove] xenstore removed");
 
                     row.Cells[4].Value = "Removed";
                     form.himn_states[i] = false;
